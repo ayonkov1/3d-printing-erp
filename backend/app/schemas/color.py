@@ -12,6 +12,7 @@ class ColorResponse(BaseModel):
     id: str
     name: str
     hex_code: str
+    is_active: bool
     created_at: datetime
     updated_at: datetime
 

@@ -1,4 +1,4 @@
-from sqlalchemy import Column, String, DateTime
+from sqlalchemy import Column, String, DateTime, Boolean
 from datetime import datetime
 from app.database import Base
 import uuid
@@ -11,6 +11,7 @@ class Color(Base):
 
     name = Column(String(100), unique=True, nullable=False)
     hex_code = Column(String(7), nullable=False)
+    is_active = Column(Boolean, default=True, nullable=False)
 
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
