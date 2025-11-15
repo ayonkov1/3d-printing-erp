@@ -9,8 +9,9 @@ engine = create_engine(
     pool_size=5,
     max_overflow=10,
 )
-
+# creates database session instance
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+# foundation class for all ORM models later on
 Base = declarative_base()
 
 
