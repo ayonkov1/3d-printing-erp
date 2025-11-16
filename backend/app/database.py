@@ -11,6 +11,7 @@ engine = create_engine(
 )
 # creates database session instance
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+# TODO: 3. Understand flushing
 # foundation class for all ORM models later on
 Base = declarative_base()
 
@@ -29,5 +30,7 @@ def create_tables():
     from app.models.brand import Brand
     from app.models.material import Material
     from app.models.spool import Spool
+
+    # TODO: Understand reflection and why imports should be here
 
     Base.metadata.create_all(bind=engine)

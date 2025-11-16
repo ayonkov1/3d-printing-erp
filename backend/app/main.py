@@ -40,6 +40,7 @@ app.add_middleware(
 )
 
 # Include routers
+# 5. Understand router inclusion
 app.include_router(spools.router)
 
 

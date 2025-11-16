@@ -3,7 +3,8 @@ from datetime import datetime
 from typing import Optional
 
 
-# Nested schemas for relationships
+# Nested schemas for
+# TODO: 5. Create nested schemas as DTOs for relationships
 class ColorNested(BaseModel):
     id: str
     name: str

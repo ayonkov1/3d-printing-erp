@@ -10,6 +10,7 @@ class Settings(BaseSettings):
 
     # Database
     DATABASE_URL: str = "postgresql://erp_user:erp_password@localhost:5432/erp_db"
+    # TODO: Understand why not coming from .env
 
     # CORS
     CORS_ORIGINS: List[str] = ["http://localhost:3000"]

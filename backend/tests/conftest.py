@@ -12,6 +12,7 @@ from app.models.spool import Spool
 
 # Test database (PostgreSQL test database)
 SQLALCHEMY_TEST_DATABASE_URL = (
+    # TODO: 4. Use a separate test database
     "postgresql://erp_user:erp_password@localhost:5432/erp_db"
 )
 
