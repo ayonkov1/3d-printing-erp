@@ -15,4 +15,5 @@ python-dotenv==1.0.0
 
 # Optional (за development)
 pytest==7.4.3
+pytest-cov==7.0.0
 httpx==0.25.1  # За testing

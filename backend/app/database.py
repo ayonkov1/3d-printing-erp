@@ -25,6 +25,9 @@ def get_db():
 
 def create_tables():
     print("Creating database tables...")
-    from app.models.color import Color  # Import here, not at top
+    from app.models.color import Color
+    from app.models.brand import Brand
+    from app.models.material import Material
+    from app.models.spool import Spool
 
     Base.metadata.create_all(bind=engine)

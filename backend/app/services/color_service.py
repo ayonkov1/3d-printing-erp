@@ -1,23 +1,23 @@
-# app/services/color_service.py
-from sqlalchemy.orm import Session
+from app.repositories.color_repository import ColorRepository
 from app.models.color import Color
-from app.schemas.color import ColorCreate
 
 
+# This service will use the ColorRepository to implement business logic related to colors. I want to use it in order to simplify color management in the application.
 class ColorService:
-    @staticmethod
-    def create(db: Session, color_data: ColorCreate) -> Color:
-        print(f"Creating color: {color_data.name} with hex {color_data.hex_code}")
-        existing = db.query(Color).filter(Color.name == color_data.name).first()
-        if existing:
-            raise ValueError(f"Color '{color_data.name}' already exists")
+    """Business logic for colors"""
 
-        db_color = Color(**color_data.model_dump())
-        db.add(db_color)
-        db.commit()
-        db.refresh(db_color)
-        return db_color
+    def __init__(self, color_repo: ColorRepository):
+        self.color_repo = color_repo
 
-    @staticmethod
-    def get_all(db: Session) -> list[Color]:
-        return db.query(Color).filter(Color.is_active == True).all()
+    def find_or_create(self, name: str, hex_code: str = "#000000") -> Color:
+        """
+        Find existing color by name, or create new one.
+
+        Args:
+            name: Color name
+            hex_code: Hex color code (default black if not provided)
+
+        Returns:
+            Color object (existing or newly created)
+        """
+        return self.color_repo.find_or_create(name, hex_code)

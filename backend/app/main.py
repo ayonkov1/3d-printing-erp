@@ -1,19 +1,25 @@
 from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-
 from app.core.config import settings
 from app.database import create_tables
+from app.api import spools
+
+# Import models to register them with Base
 from app.models.color import Color
+from app.models.brand import Brand
+from app.models.material import Material
+from app.models.spool import Spool
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    # Startup actions
+    """Startup and shutdown events"""
+    # Startup
     create_tables()
-    print("Tables created successfully.")
+    print("✅ Database tables created")
     yield
-    # Shutdown actions (if any)
+    # Shutdown (nothing to do for now)
 
 
 app = FastAPI(
@@ -24,6 +30,7 @@ app = FastAPI(
     lifespan=lifespan,
 )
 
+# CORS
 app.add_middleware(
     CORSMiddleware,
     allow_origins=settings.CORS_ORIGINS,
@@ -32,10 +39,12 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# Include routers
+app.include_router(spools.router)
+
 
 @app.get("/")
 async def root():
-    """Root endpoint"""
     return {
         "message": f"Welcome to {settings.APP_NAME}",
         "version": settings.APP_VERSION,

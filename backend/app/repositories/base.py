@@ -2,7 +2,7 @@ from typing import Generic, TypeVar, Type, Optional, List
 from sqlalchemy.orm import Session
 from app.database import Base
 
-ModelType = TypeVar("ModelType", bound=Base)
+ModelType = TypeVar("ModelType", bound=Base)  # type: ignore
 
 # Now this is something new. A generic base repository class. Like a template that will accept any model type that conforms to the Base class from SQLAlchemy. TODO: better understand it but generally it is a type placeholder.
 
