@@ -3,6 +3,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.core.config import settings
 from app.database import create_tables
+from app.seed import seed_database
 from app.api import spools
 
 # Import models to register them with Base
@@ -18,6 +19,7 @@ async def lifespan(app: FastAPI):
     # Startup
     create_tables()
     print("✅ Database tables created")
+    seed_database()
     yield
     # Shutdown (nothing to do for now)
 
