@@ -1,1 +1,5 @@
 export { apiClient, default } from './client'
+export { spoolsApi, default as spoolsService } from './spools'
+export { colorsApi, default as colorsService } from './colors'
+export { brandsApi, default as brandsService } from './brands'
+export { materialsApi, default as materialsService } from './materials'
