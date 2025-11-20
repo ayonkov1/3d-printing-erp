@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Layout, SpoolForm, SpoolsTable } from './components'
+import { Layout, SpoolsTable } from './components'
 import type { ActionType, Spool } from './types'
 import './App.css'
 
@@ -19,11 +19,6 @@ function App() {
         >
             {selectedAction === 'addnew' && (
                 <div className="flex flex-col items-center gap-6">
-                    {/* Form - Centered */}
-                    <div className="w-full max-w-md">
-                        <SpoolForm onSuccess={() => setSelectedSpool(null)} />
-                    </div>
-
                     {/* Table - Below */}
                     <div className="w-full">
                         <SpoolsTable
