@@ -116,12 +116,12 @@ const SpoolsTable: React.FC<SpoolsTableProps> = ({ onRowSelect }) => {
 
     React.useEffect(() => {
         const selectedRowsData = table.getSelectedRowModel().rows.map((row) => row.original)
-        console.log('Selected rows:', selectedRowsData)
 
         if (onRowSelect) {
             onRowSelect(selectedRowsData)
         }
-    }, [rowSelection, table, onRowSelect])
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [rowSelection, onRowSelect])
 
     if (isLoading) {
         return (

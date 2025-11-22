@@ -9,6 +9,10 @@ interface ActionButtonBarProps {
 }
 
 const ActionButtonBar: React.FC<ActionButtonBarProps> = ({ selectedAction, onActionSelect, hasSelectedRow = false }) => {
+    React.useEffect(() => {
+        console.log('Selected action:', selectedAction)
+    }, [selectedAction])
+
     const actionButtons: ActionButton[] = [
         {
             id: 'use',
@@ -53,8 +57,8 @@ const ActionButtonBar: React.FC<ActionButtonBarProps> = ({ selectedAction, onAct
     ]
 
     return (
-        <div className="bg-gray-800 px-6 py-8">
-            <div className="flex justify-center items-center gap-6">
+        <div className="bg-[#2a2a2a] px-6 py-6">
+            <div className="flex justify-center items-center gap-8">
                 {actionButtons.map((button) => {
                     const isSelected = selectedAction === button.id
                     const isDisabled = button.disabled
@@ -64,18 +68,18 @@ const ActionButtonBar: React.FC<ActionButtonBarProps> = ({ selectedAction, onAct
                             key={button.id}
                             onClick={() => !isDisabled && onActionSelect(button.id)}
                             disabled={isDisabled}
-                            className={`flex flex-col items-center gap-3 transition-all ${
+                            className={`flex flex-col items-center gap-2 transition-all ${
                                 isDisabled ? 'opacity-40 cursor-not-allowed' : 'hover:scale-105 cursor-pointer'
                             }`}
                         >
                             <div
-                                className={`w-24 h-24 rounded-full flex items-center justify-center ${button.bgColor} ${
-                                    isSelected ? 'ring-4 ring-lime-400 ring-offset-2' : ''
+                                className={`w-28 h-28 rounded-lg flex items-center justify-center ${button.bgColor} ${
+                                    isSelected ? 'ring-4 ring-lime-400' : ''
                                 } ${button.color} shadow-lg ${!isDisabled && 'hover:shadow-xl'}`}
                             >
                                 {button.icon}
                             </div>
-                            <span className="text-sm font-medium text-gray-700 uppercase tracking-wide">{button.label}</span>
+                            <span className="text-xs font-medium text-white uppercase tracking-wide">{button.label}</span>
                         </button>
                     )
                 })}
