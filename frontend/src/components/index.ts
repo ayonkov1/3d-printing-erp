@@ -1,3 +1,7 @@
+export * from './Header';
+export * from './ActionBar';
+export * from './AddNewForm';
+// Exporting old components just in case, but we might not need them
 export { default as TopNavBar } from './TopNavBar'
 export { default as ActionButtonBar } from './ActionButtonBar'
 export { default as MainContent } from './MainContent'
