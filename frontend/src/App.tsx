@@ -1,6 +1,6 @@
 import { useState, useCallback } from 'react'
 import { ThemeProvider } from './contexts/ThemeContext'
-import { Header, ActionBar, AddNewForm, SpoolsTable } from './components'
+import { Header, AddNewForm, SpoolsTable } from './components'
 import type { ActionType } from './components/ActionBar'
 import type { Spool } from './types'
 
@@ -16,15 +16,13 @@ function App() {
     return (
         <ThemeProvider>
             <div className="min-h-screen bg-white dark:bg-gray-900 transition-colors duration-200">
-                <div className="container mx-auto px-4 py-6 max-w-7xl">
-                    <Header />
+                <div className="w-full px-8 py-6">
+                    <Header
+                        selectedAction={selectedAction}
+                        onActionSelect={setSelectedAction}
+                    />
 
                     <main>
-                        <ActionBar
-                            selectedAction={selectedAction}
-                            onActionSelect={setSelectedAction}
-                        />
-
                         <div className="mt-8">
                             {selectedAction === 'addnew' && (
                                 <div className="flex flex-col lg:flex-row gap-8">

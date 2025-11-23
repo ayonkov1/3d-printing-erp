@@ -1,41 +1,119 @@
 import React from 'react'
 import { useTheme } from '../contexts/ThemeContext'
-import { Moon, Sun } from 'lucide-react'
+import { Moon, Sun, MoreHorizontal, ChevronUp, Plus, X, FileText } from 'lucide-react'
+import type { ActionType } from '../types'
 
-export const Header: React.FC = () => {
+interface HeaderProps {
+    selectedAction: ActionType
+    onActionSelect: (action: ActionType) => void
+}
+
+export const Header: React.FC<HeaderProps> = ({ selectedAction, onActionSelect }) => {
     const { theme, toggleTheme } = useTheme()
+
+    const actions: { id: ActionType; label: string; icon: React.ReactNode; color: string }[] = [
+        {
+            id: 'use',
+            label: 'USE',
+            icon: (
+                <MoreHorizontal
+                    size={28}
+                    className="text-white"
+                />
+            ),
+            color: 'bg-amber-500',
+        },
+        {
+            id: 'topup',
+            label: 'TOP UP',
+            icon: (
+                <ChevronUp
+                    size={28}
+                    className="text-white"
+                />
+            ),
+            color: 'bg-lime-600',
+        },
+        {
+            id: 'addnew',
+            label: 'ADD NEW',
+            icon: (
+                <Plus
+                    size={28}
+                    className="text-white"
+                />
+            ),
+            color: 'bg-teal-600',
+        },
+        {
+            id: 'remove',
+            label: 'REMOVE',
+            icon: (
+                <X
+                    size={28}
+                    className="text-white"
+                />
+            ),
+            color: 'bg-red-600',
+        },
+        {
+            id: 'data',
+            label: 'DATA',
+            icon: (
+                <FileText
+                    size={28}
+                    className="text-white"
+                />
+            ),
+            color: 'bg-purple-600',
+        },
+    ]
 
     return (
         <div className="mb-8">
-            <div className="flex justify-between items-start">
+            <div className="flex justify-between items-end">
                 <div className="flex flex-col gap-4">
                     <h1 className="text-4xl font-light text-gray-800 dark:text-gray-100">Welcome User</h1>
                     <div className="flex gap-4">
-                        <button className="bg-gray-800 text-white px-8 py-2 text-sm font-medium hover:bg-gray-700 transition-colors dark:bg-gray-700 dark:hover:bg-gray-600 rounded-none">
+                        <button className="bg-gray-800 text-white px-8 py-2 text-sm font-medium hover:bg-gray-700 transition-colors dark:bg-gray-700 dark:hover:bg-gray-600 rounded-none h-10 flex items-center">
                             Profile
                         </button>
-                        <button className="bg-red-600 text-white px-8 py-2 text-sm font-medium hover:bg-red-700 transition-colors rounded-none">Exit</button>
+                        <button className="bg-red-600 text-white px-8 py-2 text-sm font-medium hover:bg-red-700 transition-colors rounded-none h-10 flex items-center">
+                            Exit
+                        </button>
+                        <button
+                            onClick={toggleTheme}
+                            className="bg-gray-800 text-white px-8 py-2 text-sm font-medium hover:bg-gray-700 transition-colors dark:bg-gray-700 dark:hover:bg-gray-600 rounded-none h-10 flex items-center justify-center"
+                            aria-label="Toggle theme"
+                        >
+                            {theme === 'light' ? (
+                                <Moon size={18} />
+                            ) : (
+                                <Sun
+                                    size={18}
+                                    className="text-white"
+                                />
+                            )}
+                        </button>
                     </div>
                 </div>
 
-                {/* Theme toggle - positioned absolutely or just to the right? 
-            The image doesn't show a theme toggle, but the requirement asked for it.
-            I'll keep it subtle.
-        */}
-                <button
-                    onClick={toggleTheme}
-                    className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
-                    aria-label="Toggle theme"
-                >
-                    {theme === 'light' ? (
-                        <Moon size={24} />
-                    ) : (
-                        <Sun
-                            size={24}
-                            className="text-white"
-                        />
-                    )}
-                </button>
+                <div className="flex gap-4">
+                    {actions.map((action) => (
+                        <button
+                            key={action.id}
+                            onClick={() => onActionSelect(action.id)}
+                            className={`
+                                flex flex-col items-center justify-center w-24 h-24 rounded-none
+                                ${action.id === 'addnew' && selectedAction === 'addnew' ? 'ring-4 ring-lime-500 z-10' : ''}
+                                bg-gray-800 hover:bg-gray-700 transition-all
+                            `}
+                        >
+                            <div className={`w-12 h-12 rounded-full flex items-center justify-center mb-2 ${action.color}`}>{action.icon}</div>
+                            <span className="text-white text-[10px] font-medium uppercase tracking-wider">{action.label}</span>
+                        </button>
+                    ))}
+                </div>
             </div>
             <hr className="border-gray-300 dark:border-gray-700 mt-6" />
         </div>
