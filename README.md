@@ -1,4 +1,29 @@
-# Technologies & Architecture
+# 3D Printing ERP
+
+A full-stack ERP system for managing 3D printing supplies and operations.
+
+## Getting Started
+
+### Using Docker (Recommended)
+
+Build and start all services:
+
+```bash
+docker compose up --build -d
+```
+
+The application will be available at:
+
+-   Frontend: http://localhost:3000
+-   Backend API: http://localhost:3000/api
+
+Stop services:
+
+```bash
+docker compose down
+```
+
+## Technologies & Architecture
 
 ### Frontend
 
@@ -12,6 +37,7 @@
 -   **React Router v6** - Client-side routing
 -   **Axios** - HTTP client for API communication
 -   **shadcn/ui** - Pre-built accessible UI components
+-   **Nginx** - Reverse proxy and static file server
 
 ### Backend
 
