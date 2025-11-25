@@ -6,7 +6,7 @@ export const brandsApi = {
      * Get all brands
      */
     getBrands: async (): Promise<Brand[]> => {
-        const response = await apiClient.get<Brand[]>('/brands')
+        const response = await apiClient.get<Brand[]>('/api/brands/')
         return response.data
     },
 
@@ -14,7 +14,7 @@ export const brandsApi = {
      * Get a single brand by ID
      */
     getBrand: async (id: string): Promise<Brand> => {
-        const response = await apiClient.get<Brand>(`/brands/${id}`)
+        const response = await apiClient.get<Brand>(`/api/brands/${id}/`)
         return response.data
     },
 
@@ -22,7 +22,7 @@ export const brandsApi = {
      * Create a new brand
      */
     createBrand: async (data: BrandCreate): Promise<Brand> => {
-        const response = await apiClient.post<Brand>('/brands', data)
+        const response = await apiClient.post<Brand>('/api/brands/', data)
         return response.data
     },
 
@@ -30,7 +30,7 @@ export const brandsApi = {
      * Update an existing brand
      */
     updateBrand: async (id: string, data: Partial<BrandCreate>): Promise<Brand> => {
-        const response = await apiClient.put<Brand>(`/brands/${id}`, data)
+        const response = await apiClient.put<Brand>(`/api/brands/${id}/`, data)
         return response.data
     },
 
@@ -38,14 +38,14 @@ export const brandsApi = {
      * Delete a brand
      */
     deleteBrand: async (id: string): Promise<void> => {
-        await apiClient.delete(`/brands/${id}`)
+        await apiClient.delete(`/api/brands/${id}/`)
     },
 
     /**
      * Search brands by name
      */
     searchByName: async (name: string): Promise<Brand[]> => {
-        const response = await apiClient.get<Brand[]>('/brands', {
+        const response = await apiClient.get<Brand[]>('/api/brands/', {
             params: { name },
         })
         return response.data

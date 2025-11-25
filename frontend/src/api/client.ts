@@ -1,6 +1,8 @@
 import axios from 'axios'
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000'
+// In production (Docker), use empty string for relative paths (same origin via Nginx proxy)
+// In development, use localhost:8000 to hit backend directly
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || (import.meta.env.PROD ? '' : 'http://localhost:8000')
 
 export const apiClient = axios.create({
     baseURL: API_BASE_URL,

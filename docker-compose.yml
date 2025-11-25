@@ -1,0 +1,51 @@
+services:
+    # The PostgreSQL Database Service
+    db:
+        image: postgres:15-alpine
+        container_name: postgres_db
+        environment:
+            POSTGRES_USER: erp_user
+            POSTGRES_PASSWORD: erp_password
+            POSTGRES_DB: erp_db
+        volumes:
+            # This persists database data on your local machine
+            - postgres_data:/var/lib/postgresql/data
+            # This runs our initialization script on the first startup
+            - ./backend/app/sql/db_setup.sql:/docker-entrypoint-initdb.d/db_setup.sql
+        networks:
+            - app-network
+
+    # Your FastAPI Backend Service
+    backend:
+        build: ./backend
+        container_name: fastapi_backend
+        environment:
+            POSTGRES_HOST: db
+            POSTGRES_USER: erp_user
+            POSTGRES_PASSWORD: erp_password
+            POSTGRES_DB: erp_db
+        depends_on:
+            - db
+        networks:
+            - app-network
+
+    # The React Frontend & NGINX Reverse Proxy Service
+    frontend:
+        build: ./frontend
+        container_name: react_frontend
+        ports:
+            # Map port 3000 on your host machine to port 80 inside the container (where Nginx is listening)
+            - '3000:80'
+        depends_on:
+            - backend
+        networks:
+            - app-network
+
+# Define the network and volume
+networks:
+    app-network:
+        driver: bridge
+
+volumes:
+    postgres_data:
+        driver: local

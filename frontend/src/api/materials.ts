@@ -6,7 +6,7 @@ export const materialsApi = {
      * Get all materials
      */
     getMaterials: async (): Promise<Material[]> => {
-        const response = await apiClient.get<Material[]>('/materials')
+        const response = await apiClient.get<Material[]>('/api/materials/')
         return response.data
     },
 
@@ -14,7 +14,7 @@ export const materialsApi = {
      * Get a single material by ID
      */
     getMaterial: async (id: string): Promise<Material> => {
-        const response = await apiClient.get<Material>(`/materials/${id}`)
+        const response = await apiClient.get<Material>(`/api/materials/${id}/`)
         return response.data
     },
 
@@ -22,7 +22,7 @@ export const materialsApi = {
      * Create a new material
      */
     createMaterial: async (data: MaterialCreate): Promise<Material> => {
-        const response = await apiClient.post<Material>('/materials', data)
+        const response = await apiClient.post<Material>('/api/materials/', data)
         return response.data
     },
 
@@ -30,7 +30,7 @@ export const materialsApi = {
      * Update an existing material
      */
     updateMaterial: async (id: string, data: Partial<MaterialCreate>): Promise<Material> => {
-        const response = await apiClient.put<Material>(`/materials/${id}`, data)
+        const response = await apiClient.put<Material>(`/api/materials/${id}/`, data)
         return response.data
     },
 
@@ -38,14 +38,14 @@ export const materialsApi = {
      * Delete a material
      */
     deleteMaterial: async (id: string): Promise<void> => {
-        await apiClient.delete(`/materials/${id}`)
+        await apiClient.delete(`/api/materials/${id}/`)
     },
 
     /**
      * Search materials by name
      */
     searchByName: async (name: string): Promise<Material[]> => {
-        const response = await apiClient.get<Material[]>('/materials', {
+        const response = await apiClient.get<Material[]>('/api/materials/', {
             params: { name },
         })
         return response.data
