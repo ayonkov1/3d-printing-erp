@@ -1,4 +1,5 @@
 import { useState, useCallback } from 'react'
+import { Toaster } from 'react-hot-toast'
 import { ThemeProvider } from './contexts/ThemeContext'
 import { Header, AddNewForm, SpoolsTable } from './components'
 import type { ActionType } from './components/ActionBar'
@@ -15,6 +16,34 @@ function App() {
 
     return (
         <ThemeProvider>
+            <Toaster
+                position="top-right"
+                toastOptions={{
+                    duration: 4000,
+                    style: {
+                        background: '#333',
+                        color: '#fff',
+                    },
+                    success: {
+                        style: {
+                            background: '#22c55e',
+                        },
+                        iconTheme: {
+                            primary: '#fff',
+                            secondary: '#22c55e',
+                        },
+                    },
+                    error: {
+                        style: {
+                            background: '#ef4444',
+                        },
+                        iconTheme: {
+                            primary: '#fff',
+                            secondary: '#ef4444',
+                        },
+                    },
+                }}
+            />
             <div className="min-h-screen bg-white dark:bg-gray-900 transition-colors duration-200">
                 <div className="w-full px-8 py-6">
                     <Header

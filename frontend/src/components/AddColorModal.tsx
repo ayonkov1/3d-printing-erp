@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react'
+import toast from 'react-hot-toast'
 import { useCreateColor } from '../hooks'
 
 interface AddColorModalProps {
@@ -43,12 +44,14 @@ export const AddColorModal: React.FC<AddColorModalProps> = ({ isOpen, onClose })
             { name: name.trim(), hex_code: hexCode },
             {
                 onSuccess: () => {
+                    toast.success(`Color "${name.trim()}" created successfully!`)
                     setName('')
                     setHexCode('#000000')
                     setError('')
                     handleClose()
                 },
                 onError: (err) => {
+                    toast.error(err.message || 'Failed to create color')
                     setError(err.message || 'Failed to create color')
                 },
             },

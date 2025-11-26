@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react'
+import toast from 'react-hot-toast'
 import { useCreateMaterial } from '../hooks'
 
 interface AddMaterialModalProps {
@@ -36,11 +37,13 @@ export const AddMaterialModal: React.FC<AddMaterialModalProps> = ({ isOpen, onCl
             { name: name.trim() },
             {
                 onSuccess: () => {
+                    toast.success(`Material "${name.trim()}" created successfully!`)
                     setName('')
                     setError('')
                     handleClose()
                 },
                 onError: (err) => {
+                    toast.error(err.message || 'Failed to create material')
                     setError(err.message || 'Failed to create material')
                 },
             },

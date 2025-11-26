@@ -75,15 +75,15 @@ export const Header: React.FC<HeaderProps> = ({ selectedAction, onActionSelect }
                 <div className="flex flex-col gap-4">
                     <h1 className="text-4xl font-light text-gray-800 dark:text-gray-100">Welcome User</h1>
                     <div className="flex gap-4">
-                        <button className="bg-gray-800 text-white px-8 py-2 text-sm font-medium hover:bg-gray-700 transition-colors dark:bg-gray-700 dark:hover:bg-gray-600 rounded-none h-10 flex items-center">
+                        <button className="bg-gray-800 text-white px-8 py-2 text-sm font-medium hover:bg-gray-700 transition-colors dark:bg-gray-700 dark:hover:bg-gray-600 rounded-none h-10 flex items-center cursor-pointer">
                             Profile
                         </button>
-                        <button className="bg-red-600 text-white px-8 py-2 text-sm font-medium hover:bg-red-700 transition-colors rounded-none h-10 flex items-center">
+                        <button className="bg-red-600 text-white px-8 py-2 text-sm font-medium hover:bg-red-700 transition-colors rounded-none h-10 flex items-center cursor-pointer">
                             Exit
                         </button>
                         <button
                             onClick={toggleTheme}
-                            className="bg-gray-800 text-white px-8 py-2 text-sm font-medium hover:bg-gray-700 transition-colors dark:bg-gray-700 dark:hover:bg-gray-600 rounded-none h-10 flex items-center justify-center"
+                            className="bg-gray-800 text-white px-8 py-2 text-sm font-medium hover:bg-gray-700 transition-colors dark:bg-gray-700 dark:hover:bg-gray-600 rounded-none h-10 flex items-center justify-center cursor-pointer"
                             aria-label="Toggle theme"
                         >
                             {theme === 'light' ? (
@@ -104,7 +104,7 @@ export const Header: React.FC<HeaderProps> = ({ selectedAction, onActionSelect }
                             key={action.id}
                             onClick={() => onActionSelect(action.id)}
                             className={`
-                                flex flex-col items-center justify-center w-24 h-24 rounded-none
+                                flex flex-col items-center justify-center w-24 h-24 rounded-none cursor-pointer
                                 ${action.id === 'addnew' && selectedAction === 'addnew' ? 'ring-4 ring-lime-500 z-10' : ''}
                                 bg-gray-800 hover:bg-gray-700 transition-all
                             `}

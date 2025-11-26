@@ -74,7 +74,7 @@ export const ActionBar: React.FC<ActionBarProps> = ({ selectedAction, onActionSe
                     key={action.id}
                     onClick={() => onActionSelect(action.id)}
                     className={`
-            flex flex-col items-center justify-center w-24 h-24 rounded-none
+            flex flex-col items-center justify-center w-24 h-24 rounded-none cursor-pointer
             ${action.id === 'addnew' && selectedAction === 'addnew' ? 'ring-4 ring-lime-500 z-10' : ''}
             bg-gray-800 hover:bg-gray-700 transition-all
           `}

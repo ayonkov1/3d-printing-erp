@@ -59,7 +59,7 @@ export const CustomSelect = ({ options, value, onChange, placeholder = 'Select a
             <button
                 type="button"
                 onClick={() => setIsOpen(!isOpen)}
-                className={`w-full border border-gray-400 px-3 py-2 bg-white dark:bg-gray-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-lime-500 text-left flex items-center justify-between ${
+                className={`w-full border border-gray-400 px-3 py-2 bg-white dark:bg-gray-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-lime-500 text-left flex items-center justify-between cursor-pointer ${
                     error ? 'border-red-500' : ''
                 }`}
             >
@@ -100,7 +100,7 @@ export const CustomSelect = ({ options, value, onChange, placeholder = 'Select a
                     <button
                         type="button"
                         onClick={() => handleSelect('')}
-                        className="w-full px-3 py-2 text-left hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-500"
+                        className="w-full px-3 py-2 text-left hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-500 cursor-pointer"
                     >
                         {placeholder}
                     </button>
@@ -111,7 +111,7 @@ export const CustomSelect = ({ options, value, onChange, placeholder = 'Select a
                             key={option.id}
                             type="button"
                             onClick={() => handleSelect(option.name)}
-                            className={`w-full px-3 py-2 text-left hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center gap-2 ${
+                            className={`w-full px-3 py-2 text-left hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center gap-2 cursor-pointer ${
                                 value === option.name ? 'bg-lime-50 dark:bg-lime-900/20' : ''
                             }`}
                         >

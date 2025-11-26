@@ -1,5 +1,6 @@
 import React, { useState } from 'react'
 import { useForm, Controller } from 'react-hook-form'
+import toast from 'react-hot-toast'
 import { useBrands, useColors, useMaterials, useCreateSpool } from '../hooks'
 import type { SpoolCreate } from '../types'
 import { AddMaterialModal } from './AddMaterialModal'
@@ -13,6 +14,9 @@ export const AddNewForm: React.FC = () => {
     const [isMaterialModalOpen, setIsMaterialModalOpen] = useState(false)
     const [isBrandModalOpen, setIsBrandModalOpen] = useState(false)
     const [isColorModalOpen, setIsColorModalOpen] = useState(false)
+    const [spoolWeight, setSpoolWeight] = useState('')
+    const [colorGroup, setColorGroup] = useState('')
+    const [category, setCategory] = useState('')
     const {
         register,
         handleSubmit,
@@ -66,6 +70,25 @@ export const AddNewForm: React.FC = () => {
               { id: 'blue', name: 'Blue', color: '#0000FF' },
           ]
 
+    const spoolWeightOptions: SelectOption[] = [
+        { id: '200', name: '200g' },
+        { id: '250', name: '250g' },
+    ]
+
+    const colorGroupOptions: SelectOption[] = [
+        { id: 'neutral', name: 'Neutral' },
+        { id: 'warm', name: 'Warm' },
+        { id: 'cool', name: 'Cool' },
+        { id: 'metallic', name: 'Metallic' },
+    ]
+
+    const categoryOptions: SelectOption[] = [
+        { id: 'functional', name: 'Functional' },
+        { id: 'decorative', name: 'Decorative' },
+        { id: 'engineering', name: 'Engineering' },
+        { id: 'prototype', name: 'Prototype' },
+    ]
+
     const currentWeight = watch('weight')
     const currentThickness = watch('thickness')
 
@@ -90,10 +113,10 @@ export const AddNewForm: React.FC = () => {
                 reset()
                 setCustomWeight(false)
                 setCustomThickness(false)
-                alert('Spool created successfully!')
+                toast.success('Spool created successfully!')
             },
             onError: (error) => {
-                alert(`Error creating spool: ${error.message}`)
+                toast.error(`Error creating spool: ${error.message}`)
             },
         })
     }
@@ -244,7 +267,7 @@ export const AddNewForm: React.FC = () => {
                                 key={w}
                                 type="button"
                                 onClick={() => handleWeightSelect(w)}
-                                className={`px-4 py-2 text-sm font-medium border ${
+                                className={`px-4 py-2 text-sm font-medium border cursor-pointer ${
                                     !customWeight && currentWeight === w
                                         ? 'bg-lime-500 text-white border-lime-500'
                                         : 'bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 border-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700'
@@ -256,7 +279,7 @@ export const AddNewForm: React.FC = () => {
                         <button
                             type="button"
                             onClick={() => handleWeightSelect('custom')}
-                            className={`px-4 py-2 text-sm font-medium border ${
+                            className={`px-4 py-2 text-sm font-medium border cursor-pointer ${
                                 customWeight
                                     ? 'bg-lime-500 text-white border-lime-500'
                                     : 'bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 border-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700'
@@ -284,11 +307,12 @@ export const AddNewForm: React.FC = () => {
                 <div className="flex flex-col w-full">
                     <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Spool Weight</label>
                     <div className="flex gap-2">
-                        <select className="flex-1 border border-gray-400 px-3 py-2 bg-white dark:bg-gray-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-lime-500">
-                            <option value="">Select Spool Weight</option>
-                            <option value="200">200g</option>
-                            <option value="250">250g</option>
-                        </select>
+                        <CustomSelect
+                            options={spoolWeightOptions}
+                            value={spoolWeight}
+                            onChange={setSpoolWeight}
+                            placeholder="Select Spool Weight"
+                        />
                         <button
                             type="button"
                             className="bg-lime-500 text-white px-4 py-2 text-sm font-medium hover:bg-lime-600 whitespace-nowrap cursor-pointer"
@@ -301,9 +325,12 @@ export const AddNewForm: React.FC = () => {
                 {/* Color Group */}
                 <div className="flex flex-col w-full">
                     <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Color group</label>
-                    <select className="w-full border border-gray-400 px-3 py-2 bg-white dark:bg-gray-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-lime-500">
-                        <option value="">Select Color Group</option>
-                    </select>
+                    <CustomSelect
+                        options={colorGroupOptions}
+                        value={colorGroup}
+                        onChange={setColorGroup}
+                        placeholder="Select Color Group"
+                    />
                 </div>
 
                 {/* Color */}
@@ -345,7 +372,7 @@ export const AddNewForm: React.FC = () => {
                                 key={t}
                                 type="button"
                                 onClick={() => handleThicknessSelect(t)}
-                                className={`px-4 py-2 text-sm font-medium border ${
+                                className={`px-4 py-2 text-sm font-medium border cursor-pointer ${
                                     !customThickness && currentThickness === t
                                         ? 'bg-lime-500 text-white border-lime-500'
                                         : 'bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 border-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700'
@@ -357,7 +384,7 @@ export const AddNewForm: React.FC = () => {
                         <button
                             type="button"
                             onClick={() => handleThicknessSelect('custom')}
-                            className={`px-4 py-2 text-sm font-medium border ${
+                            className={`px-4 py-2 text-sm font-medium border cursor-pointer ${
                                 customThickness
                                     ? 'bg-lime-500 text-white border-lime-500'
                                     : 'bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 border-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700'
@@ -399,9 +426,12 @@ export const AddNewForm: React.FC = () => {
                 <div className="flex flex-col w-full">
                     <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Category (Optional)</label>
                     <div className="flex gap-2">
-                        <select className="flex-1 border border-gray-400 px-3 py-2 bg-white dark:bg-gray-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-lime-500">
-                            <option value="">Select Category</option>
-                        </select>
+                        <CustomSelect
+                            options={categoryOptions}
+                            value={category}
+                            onChange={setCategory}
+                            placeholder="Select Category"
+                        />
                         <button
                             type="button"
                             className="bg-lime-500 text-white px-4 py-2 text-sm font-medium hover:bg-lime-600 whitespace-nowrap cursor-pointer"
@@ -416,7 +446,7 @@ export const AddNewForm: React.FC = () => {
                     <button
                         type="submit"
                         disabled={createSpool.isPending}
-                        className="w-full bg-lime-500 text-white px-6 py-3 text-sm font-medium hover:bg-lime-600 disabled:opacity-50 disabled:cursor-not-allowed"
+                        className="w-full bg-lime-500 text-white px-6 py-3 text-sm font-medium hover:bg-lime-600 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
                     >
                         {createSpool.isPending ? 'Creating...' : 'CREATE SPOOL'}
                     </button>
@@ -425,7 +455,7 @@ export const AddNewForm: React.FC = () => {
                 <div className="pt-2">
                     <button
                         type="button"
-                        className="bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-white px-6 py-2 text-sm font-medium hover:bg-gray-300 dark:hover:bg-gray-600 w-full"
+                        className="bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-white px-6 py-2 text-sm font-medium hover:bg-gray-300 dark:hover:bg-gray-600 w-full cursor-pointer"
                     >
                         New Property (Optional)
                     </button>

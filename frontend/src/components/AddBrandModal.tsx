@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react'
+import toast from 'react-hot-toast'
 import { useCreateBrand } from '../hooks'
 
 interface AddBrandModalProps {
@@ -36,11 +37,13 @@ export const AddBrandModal: React.FC<AddBrandModalProps> = ({ isOpen, onClose })
             { name: name.trim() },
             {
                 onSuccess: () => {
+                    toast.success(`Brand "${name.trim()}" created successfully!`)
                     setName('')
                     setError('')
                     handleClose()
                 },
                 onError: (err) => {
+                    toast.error(err.message || 'Failed to create brand')
                     setError(err.message || 'Failed to create brand')
                 },
             },
