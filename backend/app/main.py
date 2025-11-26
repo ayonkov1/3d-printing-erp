@@ -5,6 +5,7 @@ from app.core.config import settings
 from app.database import create_tables
 from app.seed import seed_database
 from app.api import spools
+from app.api import materials
 
 # Import models to register them with Base
 from app.models.color import Color
@@ -44,6 +45,7 @@ app.add_middleware(
 # Include routers
 # 5. Understand router inclusion
 app.include_router(spools.router)
+app.include_router(materials.router)
 
 
 @app.get("/")

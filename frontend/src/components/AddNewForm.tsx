@@ -2,10 +2,12 @@ import React, { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { useBrands, useColors, useMaterials, useCreateSpool } from '../hooks'
 import type { SpoolCreate } from '../types'
+import { AddMaterialModal } from './AddMaterialModal'
 
 export const AddNewForm: React.FC = () => {
     const [customWeight, setCustomWeight] = useState(false)
     const [customThickness, setCustomThickness] = useState(false)
+    const [isMaterialModalOpen, setIsMaterialModalOpen] = useState(false)
     const {
         register,
         handleSubmit,
@@ -82,6 +84,7 @@ export const AddNewForm: React.FC = () => {
     }
 
     return (
+        <>
         <form
             onSubmit={handleSubmit(onSubmit)}
             className="w-full max-w-4xl space-y-4"
@@ -151,7 +154,8 @@ export const AddNewForm: React.FC = () => {
                     </select>
                     <button
                         type="button"
-                        className="bg-lime-500 text-white px-4 py-2 text-sm font-medium hover:bg-lime-600 whitespace-nowrap"
+                        onClick={() => setIsMaterialModalOpen(true)}
+                        className="bg-lime-500 text-white px-4 py-2 text-sm font-medium hover:bg-lime-600 whitespace-nowrap cursor-pointer"
                     >
                         Add new
                     </button>
@@ -187,7 +191,7 @@ export const AddNewForm: React.FC = () => {
                     </select>
                     <button
                         type="button"
-                        className="bg-lime-500 text-white px-4 py-2 text-sm font-medium hover:bg-lime-600 whitespace-nowrap"
+                        className="bg-lime-500 text-white px-4 py-2 text-sm font-medium hover:bg-lime-600 whitespace-nowrap cursor-pointer"
                     >
                         Add new
                     </button>
@@ -206,7 +210,7 @@ export const AddNewForm: React.FC = () => {
                     />
                     <button
                         type="button"
-                        className="bg-lime-500 text-white px-4 py-2 text-sm font-medium hover:bg-lime-600 whitespace-nowrap"
+                        className="bg-lime-500 text-white px-4 py-2 text-sm font-medium hover:bg-lime-600 whitespace-nowrap cursor-pointer"
                     >
                         Add new
                     </button>
@@ -269,7 +273,7 @@ export const AddNewForm: React.FC = () => {
                     </select>
                     <button
                         type="button"
-                        className="bg-lime-500 text-white px-4 py-2 text-sm font-medium hover:bg-lime-600 whitespace-nowrap"
+                        className="bg-lime-500 text-white px-4 py-2 text-sm font-medium hover:bg-lime-600 whitespace-nowrap cursor-pointer"
                     >
                         Add new
                     </button>
@@ -312,7 +316,7 @@ export const AddNewForm: React.FC = () => {
                     </select>
                     <button
                         type="button"
-                        className="bg-lime-500 text-white px-4 py-2 text-sm font-medium hover:bg-lime-600 whitespace-nowrap"
+                        className="bg-lime-500 text-white px-4 py-2 text-sm font-medium hover:bg-lime-600 whitespace-nowrap cursor-pointer"
                     >
                         Add new
                     </button>
@@ -388,7 +392,7 @@ export const AddNewForm: React.FC = () => {
                     </select>
                     <button
                         type="button"
-                        className="bg-lime-500 text-white px-4 py-2 text-sm font-medium hover:bg-lime-600 whitespace-nowrap"
+                        className="bg-lime-500 text-white px-4 py-2 text-sm font-medium hover:bg-lime-600 whitespace-nowrap cursor-pointer"
                     >
                         Add new
                     </button>
@@ -415,5 +419,12 @@ export const AddNewForm: React.FC = () => {
                 </button>
             </div>
         </form>
+        
+        {/* Add Material Modal - outside form to prevent form submission issues */}
+        <AddMaterialModal
+            isOpen={isMaterialModalOpen}
+            onClose={() => setIsMaterialModalOpen(false)}
+        />
+        </>
     )
 }

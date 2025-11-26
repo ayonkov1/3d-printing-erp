@@ -59,6 +59,13 @@ def get_brand_service(
     return BrandService(brand_repo)
 
 
+def get_material_service(
+    material_repo: MaterialRepository = Depends(get_material_repository),
+) -> MaterialService:
+    """Dependency that provides MaterialService"""
+    return MaterialService(material_repo)
+
+
 def get_spool_service(
     spool_repo: SpoolRepository = Depends(get_spool_repository),
     color_service: ColorService = Depends(get_color_service),
