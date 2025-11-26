@@ -26,7 +26,7 @@ class BrandService:
         existing = self.brand_repo.find_by_name(name)
         if existing:
             raise ValueError(f"Brand '{name}' already exists")
-        
+
         new_brand = Brand(name=name)
         return self.brand_repo.create(new_brand)
 

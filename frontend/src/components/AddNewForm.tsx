@@ -1,21 +1,25 @@
 import React, { useState } from 'react'
-import { useForm } from 'react-hook-form'
+import { useForm, Controller } from 'react-hook-form'
 import { useBrands, useColors, useMaterials, useCreateSpool } from '../hooks'
 import type { SpoolCreate } from '../types'
 import { AddMaterialModal } from './AddMaterialModal'
 import { AddBrandModal } from './AddBrandModal'
+import { AddColorModal } from './AddColorModal'
+import { CustomSelect, type SelectOption } from './CustomSelect'
 
 export const AddNewForm: React.FC = () => {
     const [customWeight, setCustomWeight] = useState(false)
     const [customThickness, setCustomThickness] = useState(false)
     const [isMaterialModalOpen, setIsMaterialModalOpen] = useState(false)
     const [isBrandModalOpen, setIsBrandModalOpen] = useState(false)
+    const [isColorModalOpen, setIsColorModalOpen] = useState(false)
     const {
         register,
         handleSubmit,
         reset,
         setValue,
         watch,
+        control,
         formState: { errors },
     } = useForm<SpoolCreate>({
         defaultValues: {
@@ -32,6 +36,35 @@ export const AddNewForm: React.FC = () => {
     const { data: colors = [] } = useColors()
     const { data: materials = [] } = useMaterials()
     const createSpool = useCreateSpool()
+
+    // Transform data into SelectOption format for CustomSelect
+    const materialOptions: SelectOption[] = materials.length
+        ? materials.map((m) => ({ id: m.id, name: m.name }))
+        : [
+              { id: 'pla', name: 'PLA' },
+              { id: 'petg', name: 'PETG' },
+              { id: 'abs', name: 'ABS' },
+              { id: 'tpu', name: 'TPU' },
+              { id: 'asa', name: 'ASA' },
+          ]
+
+    const brandOptions: SelectOption[] = brands.length
+        ? brands.map((b) => ({ id: b.id, name: b.name }))
+        : [
+              { id: 'bambu', name: 'Bambu' },
+              { id: 'prusament', name: 'Prusament' },
+              { id: 'sunlu', name: 'Sunlu' },
+              { id: 'esun', name: 'eSun' },
+          ]
+
+    const colorOptions: SelectOption[] = colors.length
+        ? colors.map((c) => ({ id: c.id, name: c.name, color: c.hex_code }))
+        : [
+              { id: 'white', name: 'White', color: '#FFFFFF' },
+              { id: 'black', name: 'Black', color: '#000000' },
+              { id: 'red', name: 'Red', color: '#FF0000' },
+              { id: 'blue', name: 'Blue', color: '#0000FF' },
+          ]
 
     const currentWeight = watch('weight')
     const currentThickness = watch('thickness')
@@ -130,30 +163,20 @@ export const AddNewForm: React.FC = () => {
                 <div className="flex flex-col w-full">
                     <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Material</label>
                     <div className="flex gap-2">
-                        <select
-                            {...register('material_name', { required: 'Material is required' })}
-                            className="flex-1 border border-gray-400 px-3 py-2 bg-white dark:bg-gray-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-lime-500"
-                        >
-                            <option value="">Select Material</option>
-                            {materials.map((m) => (
-                                <option
-                                    key={m.id}
-                                    value={m.name}
-                                >
-                                    {m.name}
-                                </option>
-                            ))}
-                            {/* Predefined materials if list is empty or as extras */}
-                            {!materials.length && (
-                                <>
-                                    <option value="PLA">PLA</option>
-                                    <option value="PETG">PETG</option>
-                                    <option value="ABS">ABS</option>
-                                    <option value="TPU">TPU</option>
-                                    <option value="ASA">ASA</option>
-                                </>
+                        <Controller
+                            name="material_name"
+                            control={control}
+                            rules={{ required: 'Material is required' }}
+                            render={({ field }) => (
+                                <CustomSelect
+                                    options={materialOptions}
+                                    value={field.value || ''}
+                                    onChange={field.onChange}
+                                    placeholder="Select Material"
+                                    error={errors.material_name?.message}
+                                />
                             )}
-                        </select>
+                        />
                         <button
                             type="button"
                             onClick={() => setIsMaterialModalOpen(true)}
@@ -169,28 +192,20 @@ export const AddNewForm: React.FC = () => {
                 <div className="flex flex-col w-full">
                     <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Brand</label>
                     <div className="flex gap-2">
-                        <select
-                            {...register('brand_name', { required: 'Brand is required' })}
-                            className="flex-1 border border-gray-400 px-3 py-2 bg-white dark:bg-gray-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-lime-500"
-                        >
-                            <option value="">Select Brand</option>
-                            {brands.map((b) => (
-                                <option
-                                    key={b.id}
-                                    value={b.name}
-                                >
-                                    {b.name}
-                                </option>
-                            ))}
-                            {!brands.length && (
-                                <>
-                                    <option value="Bambu">Bambu</option>
-                                    <option value="Prusament">Prusament</option>
-                                    <option value="Sunlu">Sunlu</option>
-                                    <option value="eSun">eSun</option>
-                                </>
+                        <Controller
+                            name="brand_name"
+                            control={control}
+                            rules={{ required: 'Brand is required' }}
+                            render={({ field }) => (
+                                <CustomSelect
+                                    options={brandOptions}
+                                    value={field.value || ''}
+                                    onChange={field.onChange}
+                                    placeholder="Select Brand"
+                                    error={errors.brand_name?.message}
+                                />
                             )}
-                        </select>
+                        />
                         <button
                             type="button"
                             onClick={() => setIsBrandModalOpen(true)}
@@ -295,30 +310,24 @@ export const AddNewForm: React.FC = () => {
                 <div className="flex flex-col w-full">
                     <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Color</label>
                     <div className="flex gap-2">
-                        <select
-                            {...register('color_name', { required: 'Color is required' })}
-                            className="flex-1 border border-gray-400 px-3 py-2 bg-white dark:bg-gray-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-lime-500"
-                        >
-                            <option value="">Select Color</option>
-                            {colors.map((c) => (
-                                <option
-                                    key={c.id}
-                                    value={c.name}
-                                >
-                                    {c.name}
-                                </option>
-                            ))}
-                            {!colors.length && (
-                                <>
-                                    <option value="White">White</option>
-                                    <option value="Black">Black</option>
-                                    <option value="Red">Red</option>
-                                    <option value="Blue">Blue</option>
-                                </>
+                        <Controller
+                            name="color_name"
+                            control={control}
+                            rules={{ required: 'Color is required' }}
+                            render={({ field }) => (
+                                <CustomSelect
+                                    options={colorOptions}
+                                    value={field.value || ''}
+                                    onChange={field.onChange}
+                                    placeholder="Select Color"
+                                    error={errors.color_name?.message}
+                                    showColorDot
+                                />
                             )}
-                        </select>
+                        />
                         <button
                             type="button"
+                            onClick={() => setIsColorModalOpen(true)}
                             className="bg-lime-500 text-white px-4 py-2 text-sm font-medium hover:bg-lime-600 whitespace-nowrap cursor-pointer"
                         >
                             Add new
@@ -433,6 +442,12 @@ export const AddNewForm: React.FC = () => {
             <AddBrandModal
                 isOpen={isBrandModalOpen}
                 onClose={() => setIsBrandModalOpen(false)}
+            />
+
+            {/* Add Color Modal */}
+            <AddColorModal
+                isOpen={isColorModalOpen}
+                onClose={() => setIsColorModalOpen(false)}
             />
         </>
     )

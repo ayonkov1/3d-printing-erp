@@ -3,6 +3,8 @@ export * from './ActionBar'
 export * from './AddNewForm'
 export * from './AddMaterialModal'
 export * from './AddBrandModal'
+export * from './AddColorModal'
+export * from './CustomSelect'
 // Exporting old components just in case, but we might not need them
 export { default as TopNavBar } from './TopNavBar'
 export { default as ActionButtonBar } from './ActionButtonBar'
