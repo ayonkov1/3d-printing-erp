@@ -8,12 +8,20 @@ from app.api import spools
 from app.api import materials
 from app.api import brands
 from app.api import colors
+from app.api import trade_names
+from app.api import categories
+from app.api import statuses
+from app.api import inventory
 
 # Import models to register them with Base
 from app.models.color import Color
 from app.models.brand import Brand
 from app.models.material import Material
 from app.models.spool import Spool
+from app.models.trade_name import TradeName
+from app.models.category import Category
+from app.models.status import Status
+from app.models.inventory import Inventory
 
 
 @asynccontextmanager
@@ -45,11 +53,14 @@ app.add_middleware(
 )
 
 # Include routers
-# 5. Understand router inclusion
 app.include_router(spools.router)
 app.include_router(materials.router)
 app.include_router(brands.router)
 app.include_router(colors.router)
+app.include_router(trade_names.router)
+app.include_router(categories.router)
+app.include_router(statuses.router)
+app.include_router(inventory.router)
 
 
 @app.get("/")

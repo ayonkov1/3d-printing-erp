@@ -3,8 +3,7 @@ from datetime import datetime
 from typing import Optional
 
 
-# Nested schemas for
-# TODO: 5. Create nested schemas as DTOs for relationships
+# Nested schemas for relationships
 class ColorNested(BaseModel):
     id: str
     name: str
@@ -27,43 +26,54 @@ class MaterialNested(BaseModel):
     model_config = {"from_attributes": True}
 
 
-# Create schema (what user sends)
+class TradeNameNested(BaseModel):
+    id: str
+    name: str
+
+    model_config = {"from_attributes": True}
+
+
+class CategoryNested(BaseModel):
+    id: str
+    name: str
+
+    model_config = {"from_attributes": True}
+
+
+# Create schema (what user sends to create a spool type)
 class SpoolCreate(BaseModel):
+    """Schema for creating a spool type in the catalog"""
     barcode: str = Field(..., min_length=1, max_length=100)
-    quantity: int = Field(default=1, ge=1)
+    base_weight: float = Field(..., gt=0, description="Standard weight when full (e.g., 1000g)")
     is_box: bool = False
-    weight: float = Field(..., gt=0)
-    thickness: Optional[float] = Field(None, gt=0)
+    thickness: Optional[float] = Field(None, gt=0, description="Filament diameter (1.75mm, 2.85mm)")
     spool_return: bool = False
-    status: str = Field(
-        default="in_stock", pattern="^(in_stock|in_use|depleted|ordered)$"
-    )
-    custom_properties: Optional[str] = None
 
     # Lookup table data (names, not IDs!)
     color_name: str = Field(..., min_length=1)
     color_hex_code: str = Field(default="#000000", pattern="^#[0-9A-Fa-f]{6}$")
     brand_name: str = Field(..., min_length=1)
     material_name: str = Field(..., min_length=1)
+    trade_name: Optional[str] = Field(None, min_length=1)
+    category_name: Optional[str] = Field(None, min_length=1)
 
 
 # Response schema (what API returns)
 class SpoolResponse(BaseModel):
+    """Schema for spool type response from catalog"""
     id: str
     barcode: str
-    quantity: int
+    base_weight: float
     is_box: bool
-    weight: float
     thickness: Optional[float]
     spool_return: bool
-    is_in_use: bool
-    status: str
-    custom_properties: Optional[str]
 
     # Nested relationships (full objects, not just IDs!)
     color: ColorNested
     brand: BrandNested
     material: MaterialNested
+    trade_name: Optional[TradeNameNested]
+    category: Optional[CategoryNested]
 
     created_at: datetime
     updated_at: datetime

@@ -1,14 +1,16 @@
-from typing import List
+from typing import List, Optional
 from app.repositories.spool_repository import SpoolRepository
 from app.services.color_service import ColorService
 from app.services.brand_service import BrandService
 from app.services.material_service import MaterialService
+from app.services.trade_name_service import TradeNameService
+from app.services.category_service import CategoryService
 from app.models.spool import Spool
 from app.schemas.spool import SpoolCreate
 
 
 class SpoolService:
-    """Business logic for spools with find-or-create for lookup tables"""
+    """Business logic for spool catalog with find-or-create for lookup tables"""
 
     def __init__(
         self,
@@ -16,22 +18,28 @@ class SpoolService:
         color_service: ColorService,
         brand_service: BrandService,
         material_service: MaterialService,
+        trade_name_service: Optional[TradeNameService] = None,
+        category_service: Optional[CategoryService] = None,
     ):
         self.spool_repo = spool_repo
         self.color_service = color_service
         self.brand_service = brand_service
         self.material_service = material_service
+        self.trade_name_service = trade_name_service
+        self.category_service = category_service
 
     def create_spool(self, spool_data: SpoolCreate) -> Spool:
         """
-        Create new spool with automatic find-or-create for lookup tables.
+        Create new spool type in catalog with automatic find-or-create for lookup tables.
 
         Process:
         1. Check if barcode already exists (validation)
         2. Find or create color
         3. Find or create brand
         4. Find or create material
-        5. Create spool with all foreign keys
+        5. Find or create trade_name (optional)
+        6. Find or create category (optional)
+        7. Create spool with all foreign keys
 
         Args:
             spool_data: Spool creation data
@@ -58,19 +66,29 @@ class SpoolService:
 
         material = self.material_service.find_or_create(spool_data.material_name)
 
+        # Optional lookups
+        trade_name_id = None
+        if spool_data.trade_name and self.trade_name_service:
+            trade_name = self.trade_name_service.find_or_create(spool_data.trade_name)
+            trade_name_id = trade_name.id
+
+        category_id = None
+        if spool_data.category_name and self.category_service:
+            category = self.category_service.find_or_create(spool_data.category_name)
+            category_id = category.id
+
         # Create spool
         spool = Spool(
             barcode=spool_data.barcode,
-            quantity=spool_data.quantity,
+            base_weight=spool_data.base_weight,
             is_box=spool_data.is_box,
-            weight=spool_data.weight,
             thickness=spool_data.thickness,
             spool_return=spool_data.spool_return,
-            status=spool_data.status,
-            custom_properties=spool_data.custom_properties,
             material_id=material.id,
             color_id=color.id,
             brand_id=brand.id,
+            trade_name_id=trade_name_id,
+            category_id=category_id,
         )
 
         return self.spool_repo.create(spool)
