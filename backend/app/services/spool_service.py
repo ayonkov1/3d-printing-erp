@@ -112,3 +112,12 @@ class SpoolService:
         if not spool:
             raise ValueError(f"Spool with id '{spool_id}' not found")
         return spool
+
+    def get_spool_by_barcode(self, barcode: str) -> Optional[Spool]:
+        """
+        Get single spool by barcode.
+
+        Returns:
+            Spool if found, None otherwise
+        """
+        return self.spool_repo.find_by_barcode(barcode)

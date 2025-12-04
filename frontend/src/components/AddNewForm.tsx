@@ -1,14 +1,20 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { useForm, Controller } from 'react-hook-form'
 import toast from 'react-hot-toast'
-import { useBrands, useColors, useMaterials, useCreateSpool } from '../hooks'
+import { useBrands, useColors, useMaterials, useCreateSpool, useAddToInventory } from '../hooks'
 import type { SpoolCreate } from '../types'
 import { AddMaterialModal } from './AddMaterialModal'
 import { AddBrandModal } from './AddBrandModal'
 import { AddColorModal } from './AddColorModal'
 import { CustomSelect, type SelectOption } from './CustomSelect'
 
-export const AddNewForm: React.FC = () => {
+interface AddNewFormProps {
+    disabled?: boolean
+    barcode?: string
+    onSuccess?: () => void
+}
+
+export const AddNewForm: React.FC<AddNewFormProps> = ({ disabled = false, barcode = '', onSuccess }) => {
     const [customWeight, setCustomWeight] = useState(false)
     const [customThickness, setCustomThickness] = useState(false)
     const [isMaterialModalOpen, setIsMaterialModalOpen] = useState(false)
@@ -17,6 +23,7 @@ export const AddNewForm: React.FC = () => {
     const [spoolWeight, setSpoolWeight] = useState('')
     const [colorGroup, setColorGroup] = useState('')
     const [category, setCategory] = useState('')
+    const [quantity, setQuantity] = useState(1)
     const {
         register,
         handleSubmit,
@@ -38,6 +45,14 @@ export const AddNewForm: React.FC = () => {
     const { data: colors = [] } = useColors()
     const { data: materials = [] } = useMaterials()
     const createSpool = useCreateSpool()
+    const addToInventory = useAddToInventory()
+
+    // Sync barcode from props
+    useEffect(() => {
+        if (barcode) {
+            setValue('barcode', barcode)
+        }
+    }, [barcode, setValue])
 
     // Transform data into SelectOption format for CustomSelect
     const materialOptions: SelectOption[] = materials.length
@@ -90,14 +105,14 @@ export const AddNewForm: React.FC = () => {
     const currentWeight = watch('base_weight')
     const currentThickness = watch('thickness')
 
-    const onSubmit = (data: SpoolCreate) => {
+    const onSubmit = async (data: SpoolCreate) => {
         // Find the selected color to get its hex code
         const selectedColor = colors.find((c) => c.name === data.color_name)
 
-        // Generate a random barcode if not provided (temporary solution)
+        // Use the barcode from props (scanned) or generate one
         const payload: SpoolCreate = {
             ...data,
-            barcode: data.barcode || `AUTO-${Math.random().toString(36).substring(7).toUpperCase()}`,
+            barcode: barcode || data.barcode || `AUTO-${Math.random().toString(36).substring(7).toUpperCase()}`,
             // Ensure numbers are numbers, handle null/undefined thickness
             base_weight: Number(data.base_weight),
             thickness: data.thickness ? Number(data.thickness) : null,
@@ -108,11 +123,32 @@ export const AddNewForm: React.FC = () => {
         }
 
         createSpool.mutate(payload, {
-            onSuccess: () => {
+            onSuccess: async (createdSpool) => {
+                // If quantity > 0, create inventory items
+                if (quantity > 0) {
+                    try {
+                        // Create inventory items for the quantity specified
+                        const inventoryPromises = Array.from({ length: quantity }, () =>
+                            addToInventory.mutateAsync({
+                                spool_id: createdSpool.id,
+                                weight: createdSpool.base_weight,
+                                status_name: 'in_stock',
+                            })
+                        )
+                        await Promise.all(inventoryPromises)
+                        toast.success(`Spool created and ${quantity} item(s) added to inventory!`)
+                    } catch {
+                        toast.success('Spool created, but failed to add to inventory')
+                    }
+                } else {
+                    toast.success('Spool template created successfully!')
+                }
+
                 reset()
                 setCustomWeight(false)
                 setCustomThickness(false)
-                toast.success('Spool created successfully!')
+                setQuantity(1)
+                onSuccess?.()
             },
             onError: (error) => {
                 toast.error(`Error creating spool: ${error.message}`)
@@ -142,20 +178,21 @@ export const AddNewForm: React.FC = () => {
 
     return (
         <>
+            {/* Show disabled overlay message when form is disabled */}
+            {disabled && (
+                <div className="mb-4 p-4 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg">
+                    <p className="text-green-700 dark:text-green-400 text-sm font-medium">
+                        ✓ Spool template found! Use the card on the right to add to inventory.
+                    </p>
+                </div>
+            )}
+
             <form
                 onSubmit={handleSubmit(onSubmit)}
-                className="w-full max-w-4xl space-y-4"
+                className={`w-full max-w-4xl space-y-4 ${disabled ? 'opacity-50 pointer-events-none' : ''}`}
             >
-                {/* Barcode Field (Added as it is required by backend) */}
-                <div className="flex flex-col w-full">
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Barcode</label>
-                    <input
-                        type="text"
-                        {...register('barcode')}
-                        placeholder="Scan or enter barcode (optional, auto-generated if empty)"
-                        className="w-full border border-gray-400 px-3 py-2 bg-white dark:bg-gray-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-lime-500"
-                    />
-                </div>
+                {/* Hidden barcode field - value comes from props */}
+                <input type="hidden" {...register('barcode')} />
 
                 {/* Box & Spool Return */}
                 <div className="flex items-end gap-6">
@@ -454,14 +491,51 @@ export const AddNewForm: React.FC = () => {
                     </div>
                 </div>
 
+                {/* Quantity - How many to add to inventory */}
+                <div className="flex flex-col w-full">
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                        Quantity to Add to Inventory
+                    </label>
+                    <div className="flex items-center gap-3">
+                        <button
+                            type="button"
+                            onClick={() => setQuantity(Math.max(0, quantity - 1))}
+                            className="w-10 h-10 flex items-center justify-center bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded hover:bg-gray-300 dark:hover:bg-gray-600 text-xl font-bold"
+                        >
+                            −
+                        </button>
+                        <input
+                            type="number"
+                            value={quantity}
+                            onChange={(e) => setQuantity(Math.max(0, parseInt(e.target.value) || 0))}
+                            min="0"
+                            className="w-20 text-center border border-gray-400 px-3 py-2 bg-white dark:bg-gray-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-lime-500"
+                        />
+                        <button
+                            type="button"
+                            onClick={() => setQuantity(quantity + 1)}
+                            className="w-10 h-10 flex items-center justify-center bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded hover:bg-gray-300 dark:hover:bg-gray-600 text-xl font-bold"
+                        >
+                            +
+                        </button>
+                        <span className="text-sm text-gray-500 dark:text-gray-400 ml-2">
+                            {quantity === 0 ? '(Template only, no inventory)' : `(Will add ${quantity} to inventory)`}
+                        </span>
+                    </div>
+                </div>
+
                 {/* Submit Button */}
                 <div className="pt-4">
                     <button
                         type="submit"
-                        disabled={createSpool.isPending}
+                        disabled={createSpool.isPending || addToInventory.isPending || disabled}
                         className="w-full bg-lime-500 text-white px-6 py-3 text-sm font-medium hover:bg-lime-600 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
                     >
-                        {createSpool.isPending ? 'Creating...' : 'CREATE SPOOL'}
+                        {createSpool.isPending || addToInventory.isPending 
+                            ? 'Creating...' 
+                            : quantity > 0 
+                                ? `CREATE SPOOL & ADD ${quantity} TO INVENTORY`
+                                : 'CREATE SPOOL TEMPLATE'}
                     </button>
                 </div>
 

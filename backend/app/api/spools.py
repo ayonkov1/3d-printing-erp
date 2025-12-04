@@ -1,5 +1,5 @@
 from fastapi import APIRouter, Depends, HTTPException, Query
-from typing import List
+from typing import List, Optional
 from app.schemas.spool import SpoolCreate, SpoolResponse
 from app.services.spool_service import SpoolService
 from app.core.dependencies import get_spool_service
@@ -36,15 +36,20 @@ async def create_spool(
 async def get_spools(
     skip: int = Query(0, ge=0, description="Number of records to skip"),
     limit: int = Query(100, ge=1, le=1000, description="Max records to return"),
+    barcode: Optional[str] = Query(None, description="Filter by exact barcode match"),
     service: SpoolService = Depends(get_spool_service),
 ):
     """
     Get all spools with pagination.
 
+    Optionally filter by barcode for exact match lookup.
     Returns spools with complete nested data (color, brand, material).
     Perfect for displaying in a table view.
     """
     try:
+        if barcode:
+            spool = service.get_spool_by_barcode(barcode)
+            return [spool] if spool else []
         spools = service.get_all_spools(skip, limit)
         return spools
     except Exception as e:
