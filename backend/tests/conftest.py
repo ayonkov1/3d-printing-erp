@@ -119,7 +119,14 @@ def status_service(db):
 
 
 @pytest.fixture
-def spool_service(db, color_service, material_service, brand_service, trade_name_service, category_service):
+def spool_service(
+    db,
+    color_service,
+    material_service,
+    brand_service,
+    trade_name_service,
+    category_service,
+):
     """Fixture that provides SpoolService with all dependencies"""
     from app.repositories.spool_repository import SpoolRepository
     from app.services.spool_service import SpoolService
@@ -127,12 +134,12 @@ def spool_service(db, color_service, material_service, brand_service, trade_name
     spool_repo = SpoolRepository(db)
 
     return SpoolService(
-        spool_repo, 
-        color_service, 
-        material_service, 
+        spool_repo,
+        color_service,
+        material_service,
         brand_service,
         trade_name_service,
-        category_service
+        category_service,
     )
 
 

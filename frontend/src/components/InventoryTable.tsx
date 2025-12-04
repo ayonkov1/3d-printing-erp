@@ -1,10 +1,5 @@
 import React from 'react'
-import {
-    useReactTable,
-    getCoreRowModel,
-    flexRender,
-    createColumnHelper,
-} from '@tanstack/react-table'
+import { useReactTable, getCoreRowModel, flexRender, createColumnHelper } from '@tanstack/react-table'
 import { useInventory, useUpdateInventory, useDeleteInventory } from '../hooks'
 import type { Inventory } from '../types'
 import toast from 'react-hot-toast'
@@ -22,7 +17,7 @@ export const InventoryTable: React.FC = () => {
             {
                 onSuccess: () => toast.success('Marked as in use'),
                 onError: (err) => toast.error(`Error: ${err.message}`),
-            }
+            },
         )
     }
 
@@ -32,7 +27,7 @@ export const InventoryTable: React.FC = () => {
             {
                 onSuccess: () => toast.success('Marked as in stock'),
                 onError: (err) => toast.error(`Error: ${err.message}`),
-            }
+            },
         )
     }
 
@@ -106,22 +101,12 @@ export const InventoryTable: React.FC = () => {
         columnHelper.accessor('is_in_use', {
             header: 'In Printer',
             cell: (info) => (
-                <div className="text-center">
-                    {info.getValue() ? (
-                        <span className="text-blue-500">🖨️ Yes</span>
-                    ) : (
-                        <span className="text-gray-400">-</span>
-                    )}
-                </div>
+                <div className="text-center">{info.getValue() ? <span className="text-blue-500">🖨️ Yes</span> : <span className="text-gray-400">-</span>}</div>
             ),
         }),
         columnHelper.accessor('custom_properties', {
             header: 'Notes',
-            cell: (info) => (
-                <div className="text-left text-sm text-gray-500 dark:text-gray-400 max-w-[150px] truncate">
-                    {info.getValue() || '-'}
-                </div>
-            ),
+            cell: (info) => <div className="text-left text-sm text-gray-500 dark:text-gray-400 max-w-[150px] truncate">{info.getValue() || '-'}</div>,
         }),
         columnHelper.display({
             id: 'actions',
@@ -198,15 +183,16 @@ export const InventoryTable: React.FC = () => {
             <table className="w-full">
                 <thead>
                     {table.getHeaderGroups().map((headerGroup) => (
-                        <tr key={headerGroup.id} className="border-b border-gray-200 dark:border-gray-700">
+                        <tr
+                            key={headerGroup.id}
+                            className="border-b border-gray-200 dark:border-gray-700"
+                        >
                             {headerGroup.headers.map((header) => (
                                 <th
                                     key={header.id}
                                     className="px-4 py-3 text-left text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wider"
                                 >
-                                    {header.isPlaceholder
-                                        ? null
-                                        : flexRender(header.column.columnDef.header, header.getContext())}
+                                    {header.isPlaceholder ? null : flexRender(header.column.columnDef.header, header.getContext())}
                                 </th>
                             ))}
                         </tr>
@@ -219,7 +205,10 @@ export const InventoryTable: React.FC = () => {
                             className="border-b border-gray-100 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors"
                         >
                             {row.getVisibleCells().map((cell) => (
-                                <td key={cell.id} className="px-4 py-3 text-gray-900 dark:text-gray-100">
+                                <td
+                                    key={cell.id}
+                                    className="px-4 py-3 text-gray-900 dark:text-gray-100"
+                                >
                                     {flexRender(cell.column.columnDef.cell, cell.getContext())}
                                 </td>
                             ))}

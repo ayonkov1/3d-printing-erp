@@ -9,11 +9,7 @@ interface AddToInventoryModalProps {
     spool: Spool
 }
 
-export const AddToInventoryModal: React.FC<AddToInventoryModalProps> = ({
-    isOpen,
-    onClose,
-    spool,
-}) => {
+export const AddToInventoryModal: React.FC<AddToInventoryModalProps> = ({ isOpen, onClose, spool }) => {
     const [quantity, setQuantity] = useState(1)
     const [useCustomWeight, setUseCustomWeight] = useState(false)
     const [customWeight, setCustomWeight] = useState(spool.base_weight)
@@ -31,7 +27,7 @@ export const AddToInventoryModal: React.FC<AddToInventoryModalProps> = ({
                 weight: useCustomWeight ? customWeight : undefined,
                 status_name: 'in_stock',
                 custom_properties: notes || undefined,
-            })
+            }),
         )
 
         try {
@@ -60,9 +56,7 @@ export const AddToInventoryModal: React.FC<AddToInventoryModalProps> = ({
 
             {/* Modal */}
             <div className="relative bg-white dark:bg-gray-800 rounded-lg shadow-xl max-w-md w-full mx-4 p-6">
-                <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">
-                    Add to Inventory
-                </h2>
+                <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">Add to Inventory</h2>
 
                 {/* Spool summary */}
                 <div className="flex items-center gap-3 p-3 bg-gray-50 dark:bg-gray-700 rounded-lg mb-4">
@@ -80,12 +74,13 @@ export const AddToInventoryModal: React.FC<AddToInventoryModalProps> = ({
                     </div>
                 </div>
 
-                <form onSubmit={handleSubmit} className="space-y-4">
+                <form
+                    onSubmit={handleSubmit}
+                    className="space-y-4"
+                >
                     {/* Quantity */}
                     <div>
-                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                            Quantity to add
-                        </label>
+                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Quantity to add</label>
                         <div className="flex items-center gap-2">
                             <button
                                 type="button"
@@ -120,9 +115,7 @@ export const AddToInventoryModal: React.FC<AddToInventoryModalProps> = ({
                                 onChange={(e) => setUseCustomWeight(e.target.checked)}
                                 className="w-4 h-4"
                             />
-                            <span className="text-sm text-gray-700 dark:text-gray-300">
-                                Custom starting weight (not full spool)
-                            </span>
+                            <span className="text-sm text-gray-700 dark:text-gray-300">Custom starting weight (not full spool)</span>
                         </label>
 
                         {useCustomWeight && (
@@ -142,9 +135,7 @@ export const AddToInventoryModal: React.FC<AddToInventoryModalProps> = ({
 
                     {/* Notes */}
                     <div>
-                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                            Notes (optional)
-                        </label>
+                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Notes (optional)</label>
                         <input
                             type="text"
                             value={notes}

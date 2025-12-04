@@ -89,8 +89,7 @@ export const useUpdateInventory = () => {
     const queryClient = useQueryClient()
 
     return useMutation({
-        mutationFn: ({ id, data }: { id: string; data: InventoryUpdate }) =>
-            inventoryApi.updateInventory(id, data),
+        mutationFn: ({ id, data }: { id: string; data: InventoryUpdate }) => inventoryApi.updateInventory(id, data),
         onSuccess: (_, variables) => {
             queryClient.invalidateQueries({ queryKey: inventoryKeys.detail(variables.id) })
             queryClient.invalidateQueries({ queryKey: inventoryKeys.lists() })
@@ -121,8 +120,7 @@ export const useMarkInUse = () => {
     const queryClient = useQueryClient()
 
     return useMutation({
-        mutationFn: ({ id, customProperties }: { id: string; customProperties?: string }) =>
-            inventoryApi.markInUse(id, customProperties),
+        mutationFn: ({ id, customProperties }: { id: string; customProperties?: string }) => inventoryApi.markInUse(id, customProperties),
         onSuccess: (_, variables) => {
             queryClient.invalidateQueries({ queryKey: inventoryKeys.detail(variables.id) })
             queryClient.invalidateQueries({ queryKey: inventoryKeys.lists() })
@@ -153,8 +151,7 @@ export const useUpdateWeight = () => {
     const queryClient = useQueryClient()
 
     return useMutation({
-        mutationFn: ({ id, newWeight }: { id: string; newWeight: number }) =>
-            inventoryApi.updateWeight(id, newWeight),
+        mutationFn: ({ id, newWeight }: { id: string; newWeight: number }) => inventoryApi.updateWeight(id, newWeight),
         onSuccess: (_, variables) => {
             queryClient.invalidateQueries({ queryKey: inventoryKeys.detail(variables.id) })
             queryClient.invalidateQueries({ queryKey: inventoryKeys.lists() })
