@@ -78,17 +78,6 @@ export const useDeleteSpool = () => {
 }
 
 /**
- * Get spools by status
- */
-export const useSpoolsByStatus = (status: string) => {
-    return useQuery({
-        queryKey: spoolKeys.list({ status }),
-        queryFn: () => spoolsApi.getSpoolsByStatus(status),
-        enabled: !!status,
-    })
-}
-
-/**
  * Search spools by barcode
  */
 export const useSpoolsByBarcode = (barcode: string) => {

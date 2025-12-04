@@ -3,7 +3,7 @@ import type { Spool, SpoolCreate, SpoolUpdate } from '../types'
 
 export const spoolsApi = {
     /**
-     * Get all spools
+     * Get all spools from catalog
      */
     getSpools: async (): Promise<Spool[]> => {
         const response = await apiClient.get<Spool[]>('/api/spools/')
@@ -19,7 +19,7 @@ export const spoolsApi = {
     },
 
     /**
-     * Create a new spool
+     * Create a new spool catalog entry
      */
     createSpool: async (data: SpoolCreate): Promise<Spool> => {
         const response = await apiClient.post<Spool>('/api/spools/', data)
@@ -35,20 +35,10 @@ export const spoolsApi = {
     },
 
     /**
-     * Delete a spool
+     * Delete a spool from catalog
      */
     deleteSpool: async (id: string): Promise<void> => {
         await apiClient.delete(`/api/spools/${id}/`)
-    },
-
-    /**
-     * Get spools by status
-     */
-    getSpoolsByStatus: async (status: string): Promise<Spool[]> => {
-        const response = await apiClient.get<Spool[]>('/api/spools/', {
-            params: { status },
-        })
-        return response.data
     },
 
     /**

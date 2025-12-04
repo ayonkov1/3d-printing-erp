@@ -43,10 +43,15 @@ class CategoryNested(BaseModel):
 # Create schema (what user sends to create a spool type)
 class SpoolCreate(BaseModel):
     """Schema for creating a spool type in the catalog"""
+
     barcode: str = Field(..., min_length=1, max_length=100)
-    base_weight: float = Field(..., gt=0, description="Standard weight when full (e.g., 1000g)")
+    base_weight: float = Field(
+        ..., gt=0, description="Standard weight when full (e.g., 1000g)"
+    )
     is_box: bool = False
-    thickness: Optional[float] = Field(None, gt=0, description="Filament diameter (1.75mm, 2.85mm)")
+    thickness: Optional[float] = Field(
+        None, gt=0, description="Filament diameter (1.75mm, 2.85mm)"
+    )
     spool_return: bool = False
 
     # Lookup table data (names, not IDs!)
@@ -61,6 +66,7 @@ class SpoolCreate(BaseModel):
 # Response schema (what API returns)
 class SpoolResponse(BaseModel):
     """Schema for spool type response from catalog"""
+
     id: str
     barcode: str
     base_weight: float

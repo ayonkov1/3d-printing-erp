@@ -18,10 +18,14 @@ class Spool(Base):
 
     # Spool type data (static properties that don't change per unit)
     barcode = Column(String(100), unique=True, nullable=False, index=True)
-    base_weight = Column(Float, nullable=False)  # Standard weight when full (e.g., 1000g)
+    base_weight = Column(
+        Float, nullable=False
+    )  # Standard weight when full (e.g., 1000g)
     is_box = Column(Boolean, default=False)  # Is it a boxed bundle?
     thickness = Column(Float, nullable=True)  # Filament diameter (1.75mm, 2.85mm)
-    spool_return = Column(Boolean, default=False)  # Does manufacturer accept empty spool returns?
+    spool_return = Column(
+        Boolean, default=False
+    )  # Does manufacturer accept empty spool returns?
 
     # Foreign keys to lookup tables
     material_id = Column(String, ForeignKey("materials.id"), nullable=False)

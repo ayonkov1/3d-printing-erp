@@ -1,18 +1,11 @@
-import { useState, useCallback } from 'react'
+import { useState } from 'react'
 import { Toaster } from 'react-hot-toast'
 import { ThemeProvider } from './contexts/ThemeContext'
-import { Header, AddNewForm, SpoolsTable } from './components'
+import { Header, AddNewForm, SpoolCatalog, InventoryTable } from './components'
 import type { ActionType } from './components/ActionBar'
-import type { Spool } from './types'
 
 function App() {
     const [selectedAction, setSelectedAction] = useState<ActionType>('addnew')
-    const [selectedSpools, setSelectedSpools] = useState<Spool[]>([])
-
-    const handleRowSelect = useCallback((spools: Spool[]) => {
-        setSelectedSpools(spools)
-        console.log('App selected spools:', spools)
-    }, [])
 
     return (
         <ThemeProvider>
@@ -54,30 +47,27 @@ function App() {
                     <main>
                         <div className="mt-8">
                             {selectedAction === 'addnew' && (
-                                <div className="flex flex-col lg:flex-row gap-8">
-                                    <div className="w-full lg:w-1/3">
-                                        <AddNewForm />
+                                <div className="space-y-8">
+                                    {/* Row 1: Create new spool archetype form */}
+                                    <div className="flex flex-col lg:flex-row gap-8">
+                                        <div className="w-full lg:w-1/3">
+                                            <AddNewForm />
+                                        </div>
+                                        <div className="w-full lg:w-2/3">
+                                            {/* Spool Catalog - shows available archetypes to add to inventory */}
+                                            <SpoolCatalog />
+                                        </div>
                                     </div>
-                                    <div className="w-full lg:w-2/3">
-                                        <SpoolsTable onRowSelect={handleRowSelect} />
+
+                                    {/* Row 2: Inventory Table - shows physical spools in inventory */}
+                                    <div className="w-full">
+                                        <InventoryTable />
                                     </div>
                                 </div>
                             )}
                             {selectedAction !== 'addnew' && (
                                 <div className="p-8 text-center text-gray-500 dark:text-gray-400 bg-gray-50 dark:bg-gray-800 rounded-lg border border-dashed border-gray-300 dark:border-gray-700">
                                     <p className="text-xl">Content for {selectedAction.toUpperCase()} not implemented yet.</p>
-                                    {selectedSpools.length > 0 && (
-                                        <div className="mt-4">
-                                            <p>Selected Spools: {selectedSpools.length}</p>
-                                            <ul className="text-sm mt-2">
-                                                {selectedSpools.map((s) => (
-                                                    <li key={s.id}>
-                                                        {s.barcode} - {s.material.name}
-                                                    </li>
-                                                ))}
-                                            </ul>
-                                        </div>
-                                    )}
                                 </div>
                             )}
                         </div>

@@ -4,11 +4,15 @@ from app.main import app
 from app.core.dependencies import get_db
 from tests.conftest import TestingSessionLocal, Base, engine
 
-# ← ADD THESE IMPORTS:
+# Import all models to register them with Base
 from app.models.color import Color
 from app.models.brand import Brand
 from app.models.material import Material
 from app.models.spool import Spool
+from app.models.inventory import Inventory
+from app.models.status import Status
+from app.models.category import Category
+from app.models.trade_name import TradeName
 
 # Create tables once before setting up the client
 Base.metadata.create_all(bind=engine)
@@ -28,20 +32,19 @@ client = TestClient(app)
 
 
 def test_create_spool_success():
+    """Test creating a spool catalog entry"""
     response = client.post(
         "/api/spools/",
         json={
             "barcode": "SP001",
-            "quantity": 5,
+            "base_weight": 1000.0,  # Standard weight in grams
             "is_box": False,
-            "weight": 1.0,  # Required!
             "thickness": 1.75,
             "spool_return": True,
-            "status": "in_stock",
-            "color_name": "Neon Green",  # Required!
+            "color_name": "Neon Green",
             "color_hex_code": "#39FF14",
-            "brand_name": "Prusament",  # Required!
-            "material_name": "PLA",  # Required!
+            "brand_name": "Prusament",
+            "material_name": "PLA",
         },
     )
 
@@ -52,6 +55,7 @@ def test_create_spool_success():
     data = response.json()
 
     assert data["barcode"] == "SP001"
+    assert data["base_weight"] == 1000.0
     assert data["color"]["name"] == "Neon Green"
     assert data["color"]["hex_code"] == "#39FF14"
     assert data["brand"]["name"] == "Prusament"
@@ -67,7 +71,7 @@ def test_create_spool_duplicate_barcode():
         "/api/spools/",
         json={
             "barcode": "SP002",
-            "weight": 1.0,
+            "base_weight": 1000.0,
             "color_name": "Red",
             "color_hex_code": "#FF0000",
             "brand_name": "eSun",
@@ -80,7 +84,7 @@ def test_create_spool_duplicate_barcode():
         "/api/spools/",
         json={
             "barcode": "SP002",
-            "weight": 1.0,
+            "base_weight": 1000.0,
             "color_name": "Blue",
             "color_hex_code": "#0000FF",
             "brand_name": "eSun",
@@ -93,13 +97,13 @@ def test_create_spool_duplicate_barcode():
 
 
 def test_get_spools():
-    """Test getting list of spools"""
+    """Test getting list of spools from catalog"""
     # Create test data
     client.post(
         "/api/spools/",
         json={
             "barcode": "SP003",
-            "weight": 1.0,
+            "base_weight": 1000.0,
             "color_name": "Black",
             "color_hex_code": "#000000",
             "brand_name": "Prusament",
@@ -122,6 +126,7 @@ def test_get_spools():
     assert "hex_code" in spool["color"]
     assert "brand" in spool
     assert "material" in spool
+    assert "base_weight" in spool
 
 
 def test_create_spool_reuses_existing_lookup_data():
@@ -131,7 +136,7 @@ def test_create_spool_reuses_existing_lookup_data():
         "/api/spools/",
         json={
             "barcode": "SP004",
-            "weight": 1.0,
+            "base_weight": 1000.0,
             "color_name": "Orange",
             "color_hex_code": "#FFA500",
             "brand_name": "Polymaker",
@@ -145,7 +150,7 @@ def test_create_spool_reuses_existing_lookup_data():
         "/api/spools/",
         json={
             "barcode": "SP005",
-            "weight": 1.0,
+            "base_weight": 1000.0,
             "color_name": "Orange",  # Same color!
             "color_hex_code": "#FFA500",
             "brand_name": "Polymaker",  # Same brand!

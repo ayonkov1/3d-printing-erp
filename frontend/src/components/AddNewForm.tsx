@@ -27,12 +27,10 @@ export const AddNewForm: React.FC = () => {
         formState: { errors },
     } = useForm<SpoolCreate>({
         defaultValues: {
-            quantity: 1,
-            weight: 1000,
+            base_weight: 1000,
             thickness: 1.75,
             is_box: false,
             spool_return: false,
-            status: 'in_stock',
         },
     })
 
@@ -89,7 +87,7 @@ export const AddNewForm: React.FC = () => {
         { id: 'prototype', name: 'Prototype' },
     ]
 
-    const currentWeight = watch('weight')
+    const currentWeight = watch('base_weight')
     const currentThickness = watch('thickness')
 
     const onSubmit = (data: SpoolCreate) => {
@@ -97,15 +95,16 @@ export const AddNewForm: React.FC = () => {
         const selectedColor = colors.find((c) => c.name === data.color_name)
 
         // Generate a random barcode if not provided (temporary solution)
-        const payload = {
+        const payload: SpoolCreate = {
             ...data,
             barcode: data.barcode || `AUTO-${Math.random().toString(36).substring(7).toUpperCase()}`,
-            // Ensure numbers are numbers
-            quantity: Number(data.quantity),
-            weight: Number(data.weight),
-            thickness: Number(data.thickness),
+            // Ensure numbers are numbers, handle null/undefined thickness
+            base_weight: Number(data.base_weight),
+            thickness: data.thickness ? Number(data.thickness) : null,
             color_hex_code: selectedColor?.hex_code || '#000000',
-            status: data.status || 'in_stock',
+            // Only include trade_name and category_name if they have values
+            trade_name: data.trade_name || undefined,
+            category_name: data.category_name || undefined,
         }
 
         createSpool.mutate(payload, {
@@ -124,10 +123,10 @@ export const AddNewForm: React.FC = () => {
     const handleWeightSelect = (weight: number | 'custom') => {
         if (weight === 'custom') {
             setCustomWeight(true)
-            setValue('weight', 0)
+            setValue('base_weight', 0)
         } else {
             setCustomWeight(false)
-            setValue('weight', weight)
+            setValue('base_weight', weight)
         }
     }
 
@@ -158,23 +157,26 @@ export const AddNewForm: React.FC = () => {
                     />
                 </div>
 
-                {/* Quantity & Box */}
+                {/* Box & Spool Return */}
                 <div className="flex items-end gap-6">
-                    <div className="flex flex-col w-32">
-                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Quantity</label>
-                        <input
-                            type="number"
-                            {...register('quantity')}
-                            className="w-full border border-gray-400 px-3 py-2 text-right bg-white dark:bg-gray-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-lime-500"
-                        />
-                    </div>
-
                     <div className="flex items-center gap-3 mb-2">
                         <span className="text-sm font-medium text-gray-700 dark:text-gray-300 uppercase">BOX</span>
                         <label className="relative inline-flex items-center cursor-pointer">
                             <input
                                 type="checkbox"
                                 {...register('is_box')}
+                                className="sr-only peer"
+                            />
+                            <div className="w-11 h-6 bg-white border border-gray-400 peer-focus:outline-none rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-0.5 after:bg-gray-400 after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600 peer-checked:after:bg-white"></div>
+                        </label>
+                    </div>
+
+                    <div className="flex items-center gap-3 mb-2">
+                        <span className="text-sm font-medium text-gray-700 dark:text-gray-300 uppercase">SPOOL RETURN</span>
+                        <label className="relative inline-flex items-center cursor-pointer">
+                            <input
+                                type="checkbox"
+                                {...register('spool_return')}
                                 className="sr-only peer"
                             />
                             <div className="w-11 h-6 bg-white border border-gray-400 peer-focus:outline-none rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-0.5 after:bg-gray-400 after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600 peer-checked:after:bg-white"></div>
@@ -246,21 +248,32 @@ export const AddNewForm: React.FC = () => {
                     <div className="flex gap-2">
                         <input
                             type="text"
-                            placeholder="Optional"
+                            {...register('trade_name')}
+                            placeholder="Optional (e.g., PolyLite, Galaxy Black)"
                             className="flex-1 border border-gray-400 px-3 py-2 bg-white dark:bg-gray-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-lime-500"
                         />
-                        <button
-                            type="button"
-                            className="bg-lime-500 text-white px-4 py-2 text-sm font-medium hover:bg-lime-600 whitespace-nowrap cursor-pointer"
-                        >
-                            Add new
-                        </button>
                     </div>
                 </div>
 
-                {/* Weight */}
+                {/* Category */}
                 <div className="flex flex-col w-full">
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Weight</label>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Category</label>
+                    <div className="flex gap-2">
+                        <CustomSelect
+                            options={categoryOptions}
+                            value={category}
+                            onChange={(val) => {
+                                setCategory(val)
+                                setValue('category_name', val || undefined)
+                            }}
+                            placeholder="Select Category (Optional)"
+                        />
+                    </div>
+                </div>
+
+                {/* Base Weight */}
+                <div className="flex flex-col w-full">
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Base Weight</label>
                     <div className="flex gap-2">
                         {[1000, 750, 500].map((w) => (
                             <button
@@ -292,7 +305,7 @@ export const AddNewForm: React.FC = () => {
                             <div className="flex items-center border border-gray-400 px-3 py-2 bg-white dark:bg-gray-800 ml-2 flex-1">
                                 <input
                                     type="number"
-                                    {...register('weight', { required: 'Weight is required' })}
+                                    {...register('base_weight', { required: 'Base weight is required' })}
                                     className="flex-1 bg-transparent text-right dark:text-white focus:outline-none w-full"
                                     placeholder="Enter weight"
                                 />
@@ -300,7 +313,7 @@ export const AddNewForm: React.FC = () => {
                             </div>
                         )}
                     </div>
-                    {errors.weight && <span className="text-red-500 text-xs mt-1">{errors.weight.message}</span>}
+                    {errors.base_weight && <span className="text-red-500 text-xs mt-1">{errors.base_weight.message}</span>}
                 </div>
 
                 {/* Spool Weight */}

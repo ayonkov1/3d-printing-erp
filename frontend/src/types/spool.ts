@@ -2,43 +2,49 @@ import type { ColorNested } from './color'
 import type { BrandNested } from './brand'
 import type { MaterialNested } from './material'
 
-export type SpoolStatus = 'in_stock' | 'in_use' | 'depleted' | 'ordered'
+// Nested types for new lookup tables
+export interface TradeNameNested {
+    id: string
+    name: string
+}
 
-// Create schema (what user sends)
+export interface CategoryNested {
+    id: string
+    name: string
+}
+
+// Create schema (what user sends to create a spool catalog entry)
 export interface SpoolCreate {
     barcode: string
-    quantity?: number
+    base_weight: number // Standard weight when full (e.g., 1000g)
     is_box?: boolean
-    weight: number
     thickness?: number | null
     spool_return?: boolean
-    status?: SpoolStatus
-    custom_properties?: string | null
 
     // Lookup table data (names, not IDs!)
     color_name: string
     color_hex_code?: string
     brand_name: string
     material_name: string
+    trade_name?: string | null
+    category_name?: string | null
 }
 
-// Response schema (what API returns)
+// Response schema (spool catalog entry from API)
 export interface Spool {
     id: string
     barcode: string
-    quantity: number
+    base_weight: number
     is_box: boolean
-    weight: number
     thickness: number | null
     spool_return: boolean
-    is_in_use: boolean
-    status: SpoolStatus
-    custom_properties: string | null
 
     // Nested relationships (full objects, not just IDs!)
     color: ColorNested
     brand: BrandNested
     material: MaterialNested
+    trade_name: TradeNameNested | null
+    category: CategoryNested | null
 
     created_at: string
     updated_at: string
@@ -47,15 +53,14 @@ export interface Spool {
 // Update schema (optional fields for PATCH)
 export interface SpoolUpdate {
     barcode?: string
-    quantity?: number
+    base_weight?: number
     is_box?: boolean
-    weight?: number
     thickness?: number | null
     spool_return?: boolean
-    status?: SpoolStatus
-    custom_properties?: string | null
     color_name?: string
     color_hex_code?: string
     brand_name?: string
     material_name?: string
+    trade_name?: string | null
+    category_name?: string | null
 }

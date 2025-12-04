@@ -62,40 +62,17 @@ const SpoolsTable: React.FC<SpoolsTableProps> = ({ onRowSelect }) => {
                 )
             },
         }),
-        columnHelper.accessor('weight', {
-            header: 'Weight (g)',
+        columnHelper.accessor('base_weight', {
+            header: 'Base Weight (g)',
             cell: (info) => <div className="text-right">{info.getValue()}</div>,
         }),
         columnHelper.accessor('thickness', {
             header: 'Thickness (mm)',
             cell: (info) => <div className="text-right">{info.getValue() || '-'}</div>,
         }),
-        columnHelper.accessor('quantity', {
-            header: 'Quantity',
-            cell: (info) => <div className="text-right">{info.getValue()}</div>,
-        }),
-        columnHelper.accessor('status', {
-            header: 'Status',
-            cell: (info) => {
-                const status = info.getValue()
-                return (
-                    <div className="text-left">
-                        <span
-                            className={`px-2 py-1 text-xs font-medium rounded-full ${
-                                status === 'in_stock'
-                                    ? 'bg-green-100 text-green-800'
-                                    : status === 'in_use'
-                                      ? 'bg-blue-100 text-blue-800'
-                                      : status === 'depleted'
-                                        ? 'bg-red-100 text-red-800'
-                                        : 'bg-yellow-100 text-yellow-800'
-                            }`}
-                        >
-                            {status.replace('_', ' ')}
-                        </span>
-                    </div>
-                )
-            },
+        columnHelper.accessor('spool_return', {
+            header: 'Returnable',
+            cell: (info) => <div className="text-center">{info.getValue() ? '✓' : '-'}</div>,
         }),
         columnHelper.accessor('is_box', {
             header: 'Box',

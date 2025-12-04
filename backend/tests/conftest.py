@@ -9,6 +9,10 @@ from app.models.color import Color
 from app.models.brand import Brand
 from app.models.material import Material
 from app.models.spool import Spool
+from app.models.inventory import Inventory
+from app.models.status import Status
+from app.models.category import Category
+from app.models.trade_name import TradeName
 
 # Test database (PostgreSQL test database)
 SQLALCHEMY_TEST_DATABASE_URL = (
@@ -85,11 +89,61 @@ def material_service(db):
 
 
 @pytest.fixture
-def spool_service(db, color_service, material_service, brand_service):
+def trade_name_service(db):
+    """Fixture that provides TradeNameService"""
+    from app.repositories.trade_name_repository import TradeNameRepository
+    from app.services.trade_name_service import TradeNameService
+
+    trade_name_repo = TradeNameRepository(db)
+    return TradeNameService(trade_name_repo)
+
+
+@pytest.fixture
+def category_service(db):
+    """Fixture that provides CategoryService"""
+    from app.repositories.category_repository import CategoryRepository
+    from app.services.category_service import CategoryService
+
+    category_repo = CategoryRepository(db)
+    return CategoryService(category_repo)
+
+
+@pytest.fixture
+def status_service(db):
+    """Fixture that provides StatusService"""
+    from app.repositories.status_repository import StatusRepository
+    from app.services.status_service import StatusService
+
+    status_repo = StatusRepository(db)
+    return StatusService(status_repo)
+
+
+@pytest.fixture
+def spool_service(db, color_service, material_service, brand_service, trade_name_service, category_service):
     """Fixture that provides SpoolService with all dependencies"""
     from app.repositories.spool_repository import SpoolRepository
     from app.services.spool_service import SpoolService
 
     spool_repo = SpoolRepository(db)
 
-    return SpoolService(spool_repo, color_service, material_service, brand_service)
+    return SpoolService(
+        spool_repo, 
+        color_service, 
+        material_service, 
+        brand_service,
+        trade_name_service,
+        category_service
+    )
+
+
+@pytest.fixture
+def inventory_service(db, spool_service, status_service):
+    """Fixture that provides InventoryService with all dependencies"""
+    from app.repositories.inventory_repository import InventoryRepository
+    from app.repositories.spool_repository import SpoolRepository
+    from app.services.inventory_service import InventoryService
+
+    inventory_repo = InventoryRepository(db)
+    spool_repo = SpoolRepository(db)
+
+    return InventoryService(inventory_repo, spool_repo, status_service)

@@ -175,8 +175,12 @@ def seed_database():
                 material_id=spool_data["material"].id,
                 brand_id=spool_data["brand"].id,
                 color_id=spool_data["color"].id,
-                trade_name_id=spool_data["trade_name"].id if spool_data["trade_name"] else None,
-                category_id=spool_data["category"].id if spool_data["category"] else None,
+                trade_name_id=(
+                    spool_data["trade_name"].id if spool_data["trade_name"] else None
+                ),
+                category_id=(
+                    spool_data["category"].id if spool_data["category"] else None
+                ),
             )
             spools.append(spool)
 

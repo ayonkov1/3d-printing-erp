@@ -14,7 +14,7 @@ async def add_to_inventory(
 ):
     """
     Add a spool to inventory.
-    
+
     Provide the spool_id (from the catalog) to add a physical unit to inventory.
     If weight is not provided, it defaults to the spool's base_weight.
     """
