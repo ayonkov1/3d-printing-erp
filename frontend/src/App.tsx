@@ -3,7 +3,7 @@ import { Toaster } from 'react-hot-toast'
 import { ThemeProvider } from './contexts/ThemeContext'
 import { Header, AddNewForm, SpoolCatalog, InventoryTable } from './components'
 import type { ActionType } from './components/ActionBar'
-import type { Spool } from './types'
+
 import { useSpoolsByBarcode } from './hooks'
 
 // Custom hook for debounced value
