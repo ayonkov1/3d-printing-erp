@@ -61,9 +61,7 @@ class SpoolService:
             # Validation: Check duplicate barcode if user provided one
             existing = self.spool_repo.find_by_barcode(barcode)
             if existing:
-                raise ValueError(
-                    f"Spool with barcode '{barcode}' already exists"
-                )
+                raise ValueError(f"Spool with barcode '{barcode}' already exists")
 
         # Find or create lookup entities
         color = self.color_service.find_or_create(

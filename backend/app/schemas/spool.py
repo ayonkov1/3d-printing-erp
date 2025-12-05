@@ -51,7 +51,12 @@ def generate_barcode() -> str:
 class SpoolCreate(BaseModel):
     """Schema for creating a spool type in the catalog"""
 
-    barcode: Optional[str] = Field(None, min_length=1, max_length=100, description="Barcode - auto-generated if not provided")
+    barcode: Optional[str] = Field(
+        None,
+        min_length=1,
+        max_length=100,
+        description="Barcode - auto-generated if not provided",
+    )
     base_weight: float = Field(
         ..., gt=0, description="Standard weight when full (e.g., 1000g)"
     )

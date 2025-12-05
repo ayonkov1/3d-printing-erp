@@ -122,7 +122,9 @@ function App() {
                                             <div className="text-sm text-gray-500 dark:text-gray-400">
                                                 {isLookingUp && <span className="text-lime-500">Looking up...</span>}
                                                 {!isLookingUp && debouncedBarcode && matchedSpools.length > 0 && (
-                                                    <span className="text-green-500">✓ Found {matchedSpools.length} matching spool{matchedSpools.length > 1 ? 's' : ''}</span>
+                                                    <span className="text-green-500">
+                                                        ✓ Found {matchedSpools.length} matching spool{matchedSpools.length > 1 ? 's' : ''}
+                                                    </span>
                                                 )}
                                                 {!isLookingUp && debouncedBarcode && matchedSpools.length === 0 && (
                                                     <span className="text-blue-500">New barcode - fill in details</span>
