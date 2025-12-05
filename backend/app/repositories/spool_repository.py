@@ -9,8 +9,12 @@ class SpoolRepository(BaseRepository[Spool]):
         super().__init__(Spool, db)
 
     def find_by_barcode(self, barcode: str) -> Optional[Spool]:
-        """Find spool by barcode"""
+        """Find spool by exact barcode match"""
         return self.db.query(Spool).filter(Spool.barcode == barcode).first()
+
+    def find_by_barcode_partial(self, barcode: str) -> List[Spool]:
+        """Find spools by partial barcode match (case-insensitive)"""
+        return self.db.query(Spool).filter(Spool.barcode.ilike(f"%{barcode}%")).all()
 
     def get_all_with_relations(self, skip: int = 0, limit: int = 100) -> List[Spool]:
         """Get all spools with eager-loaded relationships"""

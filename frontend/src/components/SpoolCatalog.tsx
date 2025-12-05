@@ -5,16 +5,16 @@ import { AddToInventoryModal } from './AddToInventoryModal'
 
 interface SpoolCatalogProps {
     onSpoolSelect?: (spool: Spool) => void
-    matchedSpool?: Spool | null
+    matchedSpools?: Spool[]
 }
 
-export const SpoolCatalog: React.FC<SpoolCatalogProps> = ({ onSpoolSelect, matchedSpool }) => {
+export const SpoolCatalog: React.FC<SpoolCatalogProps> = ({ onSpoolSelect, matchedSpools = [] }) => {
     const { data: spools = [], isLoading, error } = useSpools()
     const [selectedSpool, setSelectedSpool] = useState<Spool | null>(null)
     const [isModalOpen, setIsModalOpen] = useState(false)
 
-    // If we have a matched spool from barcode scan, show only that one
-    const displaySpools = matchedSpool ? [matchedSpool] : spools
+    // If we have matched spools from barcode scan, show those; otherwise show all
+    const displaySpools = matchedSpools.length > 0 ? matchedSpools : spools
 
     const handleAddToInventory = (spool: Spool) => {
         setSelectedSpool(spool)
@@ -27,7 +27,7 @@ export const SpoolCatalog: React.FC<SpoolCatalogProps> = ({ onSpoolSelect, match
         setSelectedSpool(null)
     }
 
-    if (isLoading && !matchedSpool) {
+    if (isLoading && matchedSpools.length === 0) {
         return (
             <div className="flex items-center justify-center h-32">
                 <div className="text-gray-400">Loading spool catalog...</div>
@@ -35,7 +35,7 @@ export const SpoolCatalog: React.FC<SpoolCatalogProps> = ({ onSpoolSelect, match
         )
     }
 
-    if (error && !matchedSpool) {
+    if (error && matchedSpools.length === 0) {
         return (
             <div className="flex items-center justify-center h-32">
                 <div className="text-red-400">Error loading catalog: {error.message}</div>
@@ -57,14 +57,12 @@ export const SpoolCatalog: React.FC<SpoolCatalogProps> = ({ onSpoolSelect, match
     return (
         <>
             <div className="mb-4">
-                {matchedSpool ? (
+                {matchedSpools.length > 0 ? (
                     <>
                         <h3 className="text-lg font-semibold text-green-600 dark:text-green-400 mb-1">
-                            ✓ Barcode Matched!
+                            ✓ {matchedSpools.length} Match{matchedSpools.length > 1 ? 'es' : ''} Found!
                         </h3>
-                        <p className="text-sm text-gray-500 dark:text-gray-400">
-                            Click "Add to Inventory" to add this spool to your stock
-                        </p>
+                        <p className="text-sm text-gray-500 dark:text-gray-400">Click "Add to Inventory" to add a spool to your stock</p>
                     </>
                 ) : (
                     <>
@@ -74,7 +72,7 @@ export const SpoolCatalog: React.FC<SpoolCatalogProps> = ({ onSpoolSelect, match
                 )}
             </div>
 
-            <div className={`grid gap-4 ${matchedSpool ? 'grid-cols-1 max-w-md' : 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4'}`}>
+            <div className={`grid gap-4 ${matchedSpools.length === 1 ? 'grid-cols-1 max-w-md' : 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4'}`}>
                 {displaySpools.map((spool) => (
                     <div
                         key={spool.id}

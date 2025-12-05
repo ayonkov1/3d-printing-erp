@@ -1,6 +1,7 @@
 from pydantic import BaseModel, Field
 from datetime import datetime
 from typing import Optional
+import uuid
 
 
 # Nested schemas for relationships
@@ -40,11 +41,17 @@ class CategoryNested(BaseModel):
     model_config = {"from_attributes": True}
 
 
+def generate_barcode() -> str:
+    """Generate a unique barcode with SPL prefix"""
+    short_id = uuid.uuid4().hex[:8].upper()
+    return f"SPL{short_id}"
+
+
 # Create schema (what user sends to create a spool type)
 class SpoolCreate(BaseModel):
     """Schema for creating a spool type in the catalog"""
 
-    barcode: str = Field(..., min_length=1, max_length=100)
+    barcode: Optional[str] = Field(None, min_length=1, max_length=100, description="Barcode - auto-generated if not provided")
     base_weight: float = Field(
         ..., gt=0, description="Standard weight when full (e.g., 1000g)"
     )

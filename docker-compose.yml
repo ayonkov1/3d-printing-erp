@@ -7,6 +7,9 @@ services:
             POSTGRES_USER: erp_user
             POSTGRES_PASSWORD: erp_password
             POSTGRES_DB: erp_db
+        ports:
+            # Expose PostgreSQL to host for local development
+            - '5432:5432'
         volumes:
             # This persists database data on your local machine
             - postgres_data:/var/lib/postgresql/data

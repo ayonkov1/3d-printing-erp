@@ -36,20 +36,20 @@ async def create_spool(
 async def get_spools(
     skip: int = Query(0, ge=0, description="Number of records to skip"),
     limit: int = Query(100, ge=1, le=1000, description="Max records to return"),
-    barcode: Optional[str] = Query(None, description="Filter by exact barcode match"),
+    barcode: Optional[str] = Query(None, description="Filter by partial barcode match"),
     service: SpoolService = Depends(get_spool_service),
 ):
     """
     Get all spools with pagination.
 
-    Optionally filter by barcode for exact match lookup.
+    Optionally filter by barcode for partial match lookup (returns all matches).
     Returns spools with complete nested data (color, brand, material).
     Perfect for displaying in a table view.
     """
     try:
         if barcode:
-            spool = service.get_spool_by_barcode(barcode)
-            return [spool] if spool else []
+            spools = service.search_spools_by_barcode(barcode)
+            return spools
         spools = service.get_all_spools(skip, limit)
         return spools
     except Exception as e:

@@ -102,7 +102,7 @@ def seed_database():
         # Create Spool Types (catalog/archetypes)
         spools_data = [
             {
-                "barcode": "PLA-BLK-001",
+                "barcode": f"SPL{uuid.uuid4().hex[:8].upper()}",
                 "base_weight": 1000.0,
                 "is_box": False,
                 "thickness": 1.75,
@@ -114,7 +114,7 @@ def seed_database():
                 "category": categories[0],  # Standard
             },
             {
-                "barcode": "PLA-WHT-002",
+                "barcode": f"SPL{uuid.uuid4().hex[:8].upper()}",
                 "base_weight": 1000.0,
                 "is_box": True,
                 "thickness": 1.75,
@@ -126,7 +126,7 @@ def seed_database():
                 "category": categories[0],  # Standard
             },
             {
-                "barcode": "ABS-RED-003",
+                "barcode": f"SPL{uuid.uuid4().hex[:8].upper()}",
                 "base_weight": 1000.0,
                 "is_box": False,
                 "thickness": 1.75,
@@ -138,7 +138,7 @@ def seed_database():
                 "category": categories[1],  # Engineering
             },
             {
-                "barcode": "PETG-BLU-004",
+                "barcode": f"SPL{uuid.uuid4().hex[:8].upper()}",
                 "base_weight": 1000.0,
                 "is_box": True,
                 "thickness": 1.75,
@@ -150,7 +150,7 @@ def seed_database():
                 "category": categories[1],  # Engineering
             },
             {
-                "barcode": "TPU-YEL-005",
+                "barcode": f"SPL{uuid.uuid4().hex[:8].upper()}",
                 "base_weight": 500.0,
                 "is_box": False,
                 "thickness": 1.75,

@@ -29,8 +29,13 @@ def create_tables():
     from app.models.color import Color
     from app.models.brand import Brand
     from app.models.material import Material
+    from app.models.trade_name import TradeName
+    from app.models.category import Category
+    from app.models.status import Status
     from app.models.spool import Spool
+    from app.models.inventory import Inventory
 
     # TODO: Understand reflection and why imports should be here
 
     Base.metadata.create_all(bind=engine)
+    print("✅ Database tables created")

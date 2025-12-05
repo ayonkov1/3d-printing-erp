@@ -33,10 +33,9 @@ function App() {
 
     // Query for spool by barcode (only when we have a debounced value)
     const { data: matchedSpools = [], isLoading: isLookingUp } = useSpoolsByBarcode(debouncedBarcode)
-    const matchedSpool: Spool | null = matchedSpools.length > 0 ? matchedSpools[0] : null
 
-    // Determine if form should be disabled (when we found a matching spool)
-    const isFormDisabled = !!matchedSpool
+    // Determine if form should be disabled (when we found matching spools)
+    const isFormDisabled = matchedSpools.length > 0
 
     // Auto-focus barcode input when addnew tab is selected
     useEffect(() => {
@@ -122,10 +121,10 @@ function App() {
                                             </div>
                                             <div className="text-sm text-gray-500 dark:text-gray-400">
                                                 {isLookingUp && <span className="text-lime-500">Looking up...</span>}
-                                                {!isLookingUp && debouncedBarcode && matchedSpool && (
-                                                    <span className="text-green-500">✓ Found existing spool</span>
+                                                {!isLookingUp && debouncedBarcode && matchedSpools.length > 0 && (
+                                                    <span className="text-green-500">✓ Found {matchedSpools.length} matching spool{matchedSpools.length > 1 ? 's' : ''}</span>
                                                 )}
-                                                {!isLookingUp && debouncedBarcode && !matchedSpool && (
+                                                {!isLookingUp && debouncedBarcode && matchedSpools.length === 0 && (
                                                     <span className="text-blue-500">New barcode - fill in details</span>
                                                 )}
                                             </div>
@@ -135,7 +134,7 @@ function App() {
                                     {/* Row 1: Create new spool archetype form + Catalog */}
                                     <div className="flex flex-col lg:flex-row gap-8">
                                         <div className="w-full lg:w-1/3">
-                                            <AddNewForm 
+                                            <AddNewForm
                                                 disabled={isFormDisabled}
                                                 barcode={barcode}
                                                 onSuccess={handleClear}
@@ -143,7 +142,7 @@ function App() {
                                         </div>
                                         <div className="w-full lg:w-2/3">
                                             {/* Spool Catalog - shows available archetypes to add to inventory */}
-                                            <SpoolCatalog matchedSpool={matchedSpool} />
+                                            <SpoolCatalog matchedSpools={matchedSpools} />
                                         </div>
                                     </div>
 

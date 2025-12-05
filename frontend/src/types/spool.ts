@@ -15,7 +15,7 @@ export interface CategoryNested {
 
 // Create schema (what user sends to create a spool catalog entry)
 export interface SpoolCreate {
-    barcode: string
+    barcode?: string // Optional - backend will auto-generate if not provided
     base_weight: number // Standard weight when full (e.g., 1000g)
     is_box?: boolean
     thickness?: number | null

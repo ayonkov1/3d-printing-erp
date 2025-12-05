@@ -109,10 +109,10 @@ export const AddNewForm: React.FC<AddNewFormProps> = ({ disabled = false, barcod
         // Find the selected color to get its hex code
         const selectedColor = colors.find((c) => c.name === data.color_name)
 
-        // Use the barcode from props (scanned) or generate one
+        // Use the barcode from props (scanned) - backend will auto-generate if empty
         const payload: SpoolCreate = {
             ...data,
-            barcode: barcode || data.barcode || `AUTO-${Math.random().toString(36).substring(7).toUpperCase()}`,
+            barcode: barcode || data.barcode || undefined,
             // Ensure numbers are numbers, handle null/undefined thickness
             base_weight: Number(data.base_weight),
             thickness: data.thickness ? Number(data.thickness) : null,
@@ -133,7 +133,7 @@ export const AddNewForm: React.FC<AddNewFormProps> = ({ disabled = false, barcod
                                 spool_id: createdSpool.id,
                                 weight: createdSpool.base_weight,
                                 status_name: 'in_stock',
-                            })
+                            }),
                         )
                         await Promise.all(inventoryPromises)
                         toast.success(`Spool created and ${quantity} item(s) added to inventory!`)
@@ -192,7 +192,10 @@ export const AddNewForm: React.FC<AddNewFormProps> = ({ disabled = false, barcod
                 className={`w-full max-w-4xl space-y-4 ${disabled ? 'opacity-50 pointer-events-none' : ''}`}
             >
                 {/* Hidden barcode field - value comes from props */}
-                <input type="hidden" {...register('barcode')} />
+                <input
+                    type="hidden"
+                    {...register('barcode')}
+                />
 
                 {/* Box & Spool Return */}
                 <div className="flex items-end gap-6">
@@ -493,9 +496,7 @@ export const AddNewForm: React.FC<AddNewFormProps> = ({ disabled = false, barcod
 
                 {/* Quantity - How many to add to inventory */}
                 <div className="flex flex-col w-full">
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                        Quantity to Add to Inventory
-                    </label>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Quantity to Add to Inventory</label>
                     <div className="flex items-center gap-3">
                         <button
                             type="button"
@@ -531,11 +532,11 @@ export const AddNewForm: React.FC<AddNewFormProps> = ({ disabled = false, barcod
                         disabled={createSpool.isPending || addToInventory.isPending || disabled}
                         className="w-full bg-lime-500 text-white px-6 py-3 text-sm font-medium hover:bg-lime-600 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
                     >
-                        {createSpool.isPending || addToInventory.isPending 
-                            ? 'Creating...' 
-                            : quantity > 0 
-                                ? `CREATE SPOOL & ADD ${quantity} TO INVENTORY`
-                                : 'CREATE SPOOL TEMPLATE'}
+                        {createSpool.isPending || addToInventory.isPending
+                            ? 'Creating...'
+                            : quantity > 0
+                              ? `CREATE SPOOL & ADD ${quantity} TO INVENTORY`
+                              : 'CREATE SPOOL TEMPLATE'}
                     </button>
                 </div>
 

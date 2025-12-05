@@ -6,7 +6,7 @@ from app.services.material_service import MaterialService
 from app.services.trade_name_service import TradeNameService
 from app.services.category_service import CategoryService
 from app.models.spool import Spool
-from app.schemas.spool import SpoolCreate
+from app.schemas.spool import SpoolCreate, generate_barcode
 
 
 class SpoolService:
@@ -50,12 +50,20 @@ class SpoolService:
         Raises:
             ValueError: If barcode already exists
         """
-        # Validation: Check duplicate barcode
-        existing = self.spool_repo.find_by_barcode(spool_data.barcode)
-        if existing:
-            raise ValueError(
-                f"Spool with barcode '{spool_data.barcode}' already exists"
-            )
+        # Generate barcode if not provided
+        barcode = spool_data.barcode
+        if not barcode:
+            barcode = generate_barcode()
+            # Ensure uniqueness (very unlikely collision but check anyway)
+            while self.spool_repo.find_by_barcode(barcode):
+                barcode = generate_barcode()
+        else:
+            # Validation: Check duplicate barcode if user provided one
+            existing = self.spool_repo.find_by_barcode(barcode)
+            if existing:
+                raise ValueError(
+                    f"Spool with barcode '{barcode}' already exists"
+                )
 
         # Find or create lookup entities
         color = self.color_service.find_or_create(
@@ -79,7 +87,7 @@ class SpoolService:
 
         # Create spool
         spool = Spool(
-            barcode=spool_data.barcode,
+            barcode=barcode,
             base_weight=spool_data.base_weight,
             is_box=spool_data.is_box,
             thickness=spool_data.thickness,
@@ -115,9 +123,18 @@ class SpoolService:
 
     def get_spool_by_barcode(self, barcode: str) -> Optional[Spool]:
         """
-        Get single spool by barcode.
+        Get single spool by exact barcode match.
 
         Returns:
             Spool if found, None otherwise
         """
         return self.spool_repo.find_by_barcode(barcode)
+
+    def search_spools_by_barcode(self, barcode: str) -> List[Spool]:
+        """
+        Search spools by partial barcode match (case-insensitive).
+
+        Returns:
+            List of all matching spools
+        """
+        return self.spool_repo.find_by_barcode_partial(barcode)
