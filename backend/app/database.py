@@ -34,6 +34,7 @@ def create_tables():
     from app.models.status import Status
     from app.models.spool import Spool
     from app.models.inventory import Inventory
+    from app.models.user import User
 
     # TODO: Understand reflection and why imports should be here
 

@@ -22,6 +22,11 @@ class Settings(BaseSettings):
     # CORS - Remove CORS since Nginx handles same-origin requests
     CORS_ORIGINS: List[str] = ["*"]
 
+    # JWT Authentication
+    SECRET_KEY: str = "your-super-secret-key-change-in-production"
+    ALGORITHM: str = "HS256"
+    ACCESS_TOKEN_EXPIRE_MINUTES: int = 60 * 24  # 24 hours
+
     model_config = SettingsConfigDict(
         env_file=".env", case_sensitive=True, extra="ignore"
     )

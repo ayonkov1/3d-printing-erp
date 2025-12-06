@@ -1,6 +1,8 @@
 import React from 'react'
+import { useNavigate } from 'react-router-dom'
 import { useTheme } from '../contexts/ThemeContext'
-import { Moon, Sun, MoreHorizontal, Plus, X, FileText } from 'lucide-react'
+import { useAuth } from '../contexts/AuthContext'
+import { Moon, Sun, MoreHorizontal, Plus, X, FileText, LogOut } from 'lucide-react'
 import type { ActionType } from '../types'
 
 interface HeaderProps {
@@ -10,6 +12,13 @@ interface HeaderProps {
 
 export const Header: React.FC<HeaderProps> = ({ selectedAction, onActionSelect }) => {
     const { theme, toggleTheme } = useTheme()
+    const { user, logout } = useAuth()
+    const navigate = useNavigate()
+
+    const handleLogout = () => {
+        logout()
+        navigate('/login')
+    }
 
     const actions: { id: ActionType; label: string; icon: React.ReactNode; color: string }[] = [
         {
@@ -63,13 +72,19 @@ export const Header: React.FC<HeaderProps> = ({ selectedAction, onActionSelect }
         <div className="mb-8">
             <div className="flex justify-between items-end">
                 <div className="flex flex-col gap-4">
-                    <h1 className="text-4xl font-light text-gray-800 dark:text-gray-100">Welcome User</h1>
+                    <h1 className="text-4xl font-light text-gray-800 dark:text-gray-100">
+                        Welcome{user?.full_name ? `, ${user.full_name}` : ''}
+                    </h1>
                     <div className="flex gap-4">
                         <button className="bg-gray-800 text-white px-8 py-2 text-sm font-medium hover:bg-gray-700 transition-colors dark:bg-gray-700 dark:hover:bg-gray-600 rounded-none h-10 flex items-center cursor-pointer">
                             Profile
                         </button>
-                        <button className="bg-red-600 text-white px-8 py-2 text-sm font-medium hover:bg-red-700 transition-colors rounded-none h-10 flex items-center cursor-pointer">
-                            Exit
+                        <button
+                            onClick={handleLogout}
+                            className="bg-red-600 text-white px-8 py-2 text-sm font-medium hover:bg-red-700 transition-colors rounded-none h-10 flex items-center gap-2 cursor-pointer"
+                        >
+                            <LogOut size={16} />
+                            Logout
                         </button>
                         <button
                             onClick={toggleTheme}

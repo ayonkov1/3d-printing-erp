@@ -12,6 +12,7 @@ from app.api import trade_names
 from app.api import categories
 from app.api import statuses
 from app.api import inventory
+from app.api import auth
 
 # Import models to register them with Base
 from app.models.color import Color
@@ -22,6 +23,7 @@ from app.models.trade_name import TradeName
 from app.models.category import Category
 from app.models.status import Status
 from app.models.inventory import Inventory
+from app.models.user import User
 
 
 @asynccontextmanager
@@ -61,6 +63,7 @@ app.include_router(trade_names.router)
 app.include_router(categories.router)
 app.include_router(statuses.router)
 app.include_router(inventory.router)
+app.include_router(auth.router)
 
 
 @app.get("/")
