@@ -32,12 +32,34 @@ export const InventoryTable: React.FC = () => {
     }
 
     const handleDelete = (item: Inventory) => {
-        if (confirm('Are you sure you want to remove this item from inventory?')) {
-            deleteInventory.mutate(item.id, {
-                onSuccess: () => toast.success('Removed from inventory'),
-                onError: (err) => toast.error(`Error: ${err.message}`),
-            })
-        }
+        toast(
+            (t) => (
+                <div className="flex flex-col gap-2">
+                    <span>Remove this item from inventory?</span>
+                    <div className="flex gap-2">
+                        <button
+                            onClick={() => {
+                                toast.dismiss(t.id)
+                                deleteInventory.mutate(item.id, {
+                                    onSuccess: () => toast.success('Removed from inventory'),
+                                    onError: (err) => toast.error(`Error: ${err.message}`),
+                                })
+                            }}
+                            className="px-3 py-1 bg-red-500 text-white rounded text-sm font-medium hover:bg-red-600"
+                        >
+                            Delete
+                        </button>
+                        <button
+                            onClick={() => toast.dismiss(t.id)}
+                            className="px-3 py-1 bg-gray-300 text-gray-700 rounded text-sm font-medium hover:bg-gray-400"
+                        >
+                            Cancel
+                        </button>
+                    </div>
+                </div>
+            ),
+            { duration: 10000 },
+        )
     }
 
     const columns = [
