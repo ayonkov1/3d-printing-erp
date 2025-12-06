@@ -87,21 +87,25 @@ export function AuthPage() {
             <div className="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-blue-600 via-purple-600 to-indigo-800 relative overflow-hidden">
                 {/* Background Pattern */}
                 <div className="absolute inset-0 opacity-10">
-                    <div className="absolute inset-0" style={{
-                        backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.4'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`,
-                    }} />
+                    <div
+                        className="absolute inset-0"
+                        style={{
+                            backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.4'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`,
+                        }}
+                    />
                 </div>
 
                 {/* Content */}
                 <div className="relative z-10 flex flex-col justify-center items-center w-full p-12 text-white">
                     {/* 3D Printer Icon */}
                     <div className="mb-8 p-6 bg-white/10 rounded-3xl backdrop-blur-sm">
-                        <Printer className="w-24 h-24 text-white" strokeWidth={1.5} />
+                        <Printer
+                            className="w-24 h-24 text-white"
+                            strokeWidth={1.5}
+                        />
                     </div>
 
-                    <h1 className="text-4xl font-bold mb-4 text-center">
-                        3D Printing ERP
-                    </h1>
+                    <h1 className="text-4xl font-bold mb-4 text-center">3D Printing ERP</h1>
                     <p className="text-xl text-white/80 text-center max-w-md">
                         Manage your filament inventory, track spools, and optimize your 3D printing workflow.
                     </p>
@@ -132,30 +136,25 @@ export function AuthPage() {
                         <div className="p-3 bg-gradient-to-br from-blue-600 to-purple-600 rounded-xl">
                             <Printer className="w-8 h-8 text-white" />
                         </div>
-                        <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
-                            3D Printing ERP
-                        </h1>
+                        <h1 className="text-2xl font-bold text-gray-900 dark:text-white">3D Printing ERP</h1>
                     </div>
 
                     {/* Form Header */}
                     <div className="text-center mb-8">
-                        <h2 className="text-3xl font-bold text-gray-900 dark:text-white">
-                            {mode === 'login' ? 'Welcome back' : 'Create account'}
-                        </h2>
+                        <h2 className="text-3xl font-bold text-gray-900 dark:text-white">{mode === 'login' ? 'Welcome back' : 'Create account'}</h2>
                         <p className="mt-2 text-gray-600 dark:text-gray-400">
-                            {mode === 'login'
-                                ? 'Sign in to access your inventory'
-                                : 'Get started with your free account'}
+                            {mode === 'login' ? 'Sign in to access your inventory' : 'Get started with your free account'}
                         </p>
                     </div>
 
                     {/* Login Form */}
                     {mode === 'login' && (
-                        <form onSubmit={loginForm.handleSubmit(handleLogin)} className="space-y-5">
+                        <form
+                            onSubmit={loginForm.handleSubmit(handleLogin)}
+                            className="space-y-5"
+                        >
                             <div>
-                                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                                    Email
-                                </label>
+                                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Email</label>
                                 <input
                                     type="email"
                                     {...loginForm.register('email', { required: true })}
@@ -166,9 +165,7 @@ export function AuthPage() {
                             </div>
 
                             <div>
-                                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                                    Password
-                                </label>
+                                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Password</label>
                                 <div className="relative">
                                     <input
                                         type={showPassword ? 'text' : 'password'}
@@ -206,11 +203,12 @@ export function AuthPage() {
 
                     {/* Register Form */}
                     {mode === 'register' && (
-                        <form onSubmit={registerForm.handleSubmit(handleRegister)} className="space-y-5">
+                        <form
+                            onSubmit={registerForm.handleSubmit(handleRegister)}
+                            className="space-y-5"
+                        >
                             <div>
-                                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                                    Full Name
-                                </label>
+                                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Full Name</label>
                                 <input
                                     type="text"
                                     {...registerForm.register('full_name')}
@@ -221,9 +219,7 @@ export function AuthPage() {
                             </div>
 
                             <div>
-                                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                                    Email
-                                </label>
+                                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Email</label>
                                 <input
                                     type="email"
                                     {...registerForm.register('email', { required: true })}
@@ -234,9 +230,7 @@ export function AuthPage() {
                             </div>
 
                             <div>
-                                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                                    Password
-                                </label>
+                                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Password</label>
                                 <div className="relative">
                                     <input
                                         type={showPassword ? 'text' : 'password'}
@@ -253,15 +247,11 @@ export function AuthPage() {
                                         {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                                     </button>
                                 </div>
-                                <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
-                                    Must be at least 6 characters
-                                </p>
+                                <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">Must be at least 6 characters</p>
                             </div>
 
                             <div>
-                                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                                    Confirm Password
-                                </label>
+                                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Confirm Password</label>
                                 <input
                                     type="password"
                                     {...registerForm.register('confirmPassword', { required: true })}

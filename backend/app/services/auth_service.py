@@ -35,16 +35,22 @@ def create_access_token(data: dict, expires_delta: Optional[timedelta] = None) -
     if expires_delta:
         expire = datetime.utcnow() + expires_delta
     else:
-        expire = datetime.utcnow() + timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
+        expire = datetime.utcnow() + timedelta(
+            minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES
+        )
     to_encode.update({"exp": expire})
-    encoded_jwt = jwt.encode(to_encode, settings.SECRET_KEY, algorithm=settings.ALGORITHM)
+    encoded_jwt = jwt.encode(
+        to_encode, settings.SECRET_KEY, algorithm=settings.ALGORITHM
+    )
     return encoded_jwt
 
 
 def decode_token(token: str) -> Optional[TokenData]:
     """Decode and validate a JWT token"""
     try:
-        payload = jwt.decode(token, settings.SECRET_KEY, algorithms=[settings.ALGORITHM])
+        payload = jwt.decode(
+            token, settings.SECRET_KEY, algorithms=[settings.ALGORITHM]
+        )
         user_id = payload.get("user_id")
         if user_id is None:
             return None
@@ -65,15 +71,15 @@ class AuthService:
         if existing_user:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
-                detail="Email already registered"
+                detail="Email already registered",
             )
-        
+
         # Hash password and create user
         hashed_password = get_password_hash(user_data.password)
         user = self.user_repo.create_user(
             email=user_data.email,
             hashed_password=hashed_password,
-            full_name=user_data.full_name
+            full_name=user_data.full_name,
         )
         return user
 
@@ -92,8 +98,7 @@ class AuthService:
 
 
 async def get_current_user(
-    token: str = Depends(oauth2_scheme),
-    db: Session = Depends(get_db)
+    token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)
 ) -> User:
     """Dependency to get the current authenticated user"""
     credentials_exception = HTTPException(
@@ -101,20 +106,19 @@ async def get_current_user(
         detail="Could not validate credentials",
         headers={"WWW-Authenticate": "Bearer"},
     )
-    
+
     token_data = decode_token(token)
     if token_data is None or token_data.user_id is None:
         raise credentials_exception
-    
+
     auth_service = AuthService(db)
     user = auth_service.get_user_by_id(token_data.user_id)
     if user is None:
         raise credentials_exception
-    
+
     if not user.is_active:
         raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Inactive user"
+            status_code=status.HTTP_400_BAD_REQUEST, detail="Inactive user"
         )
-    
+
     return user

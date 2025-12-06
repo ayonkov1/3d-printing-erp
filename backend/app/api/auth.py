@@ -23,31 +23,31 @@ async def register(
 ):
     """
     Register a new user.
-    
+
     Returns the created user with an access token.
     """
     auth_service = AuthService(db)
-    
+
     try:
         user = auth_service.register_user(user_data)
-        
+
         # Create access token
         access_token = create_access_token(
             data={"user_id": user.id},
-            expires_delta=timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
+            expires_delta=timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES),
         )
-        
+
         return AuthResponse(
             access_token=access_token,
             token_type="bearer",
-            user=UserResponse.model_validate(user)
+            user=UserResponse.model_validate(user),
         )
     except HTTPException:
         raise
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Internal server error: {str(e)}"
+            detail=f"Internal server error: {str(e)}",
         )
 
 
@@ -60,7 +60,7 @@ async def login(
     Authenticate a user and return an access token.
     """
     auth_service = AuthService(db)
-    
+
     user = auth_service.authenticate_user(user_data.email, user_data.password)
     if not user:
         raise HTTPException(
@@ -68,17 +68,17 @@ async def login(
             detail="Invalid email or password",
             headers={"WWW-Authenticate": "Bearer"},
         )
-    
+
     # Create access token
     access_token = create_access_token(
         data={"user_id": user.id},
-        expires_delta=timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
+        expires_delta=timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES),
     )
-    
+
     return AuthResponse(
         access_token=access_token,
         token_type="bearer",
-        user=UserResponse.model_validate(user)
+        user=UserResponse.model_validate(user),
     )
 
 

@@ -13,11 +13,11 @@ class UserRepository(BaseRepository[User]):
         """Find user by email (case-insensitive)"""
         return self.db.query(User).filter(User.email.ilike(email)).first()
 
-    def create_user(self, email: str, hashed_password: str, full_name: Optional[str] = None) -> User:
+    def create_user(
+        self, email: str, hashed_password: str, full_name: Optional[str] = None
+    ) -> User:
         """Create a new user"""
         new_user = User(
-            email=email,
-            hashed_password=hashed_password,
-            full_name=full_name
+            email=email, hashed_password=hashed_password, full_name=full_name
         )
         return self.create(new_user)

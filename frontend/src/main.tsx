@@ -13,7 +13,10 @@ createRoot(document.getElementById('root')!).render(
             <BrowserRouter>
                 <AuthProvider>
                     <Routes>
-                        <Route path="/login" element={<AuthPage />} />
+                        <Route
+                            path="/login"
+                            element={<AuthPage />}
+                        />
                         <Route
                             path="/*"
                             element={

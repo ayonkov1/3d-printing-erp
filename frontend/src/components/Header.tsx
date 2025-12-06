@@ -72,9 +72,7 @@ export const Header: React.FC<HeaderProps> = ({ selectedAction, onActionSelect }
         <div className="mb-8">
             <div className="flex justify-between items-end">
                 <div className="flex flex-col gap-4">
-                    <h1 className="text-4xl font-light text-gray-800 dark:text-gray-100">
-                        Welcome{user?.full_name ? `, ${user.full_name}` : ''}
-                    </h1>
+                    <h1 className="text-4xl font-light text-gray-800 dark:text-gray-100">Welcome{user?.full_name ? `, ${user.full_name}` : ''}</h1>
                     <div className="flex gap-4">
                         <button className="bg-gray-800 text-white px-8 py-2 text-sm font-medium hover:bg-gray-700 transition-colors dark:bg-gray-700 dark:hover:bg-gray-600 rounded-none h-10 flex items-center cursor-pointer">
                             Profile
