@@ -1,6 +1,6 @@
 import React from 'react'
 import { useTheme } from '../contexts/ThemeContext'
-import { Moon, Sun, MoreHorizontal, ChevronUp, Plus, X, FileText } from 'lucide-react'
+import { Moon, Sun, MoreHorizontal, Plus, X, FileText } from 'lucide-react'
 import type { ActionType } from '../types'
 
 interface HeaderProps {
@@ -23,17 +23,7 @@ export const Header: React.FC<HeaderProps> = ({ selectedAction, onActionSelect }
             ),
             color: 'bg-amber-500',
         },
-        {
-            id: 'topup',
-            label: 'TOP UP',
-            icon: (
-                <ChevronUp
-                    size={28}
-                    className="text-white"
-                />
-            ),
-            color: 'bg-lime-600',
-        },
+
         {
             id: 'addnew',
             label: 'ADD NEW',

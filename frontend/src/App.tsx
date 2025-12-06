@@ -94,42 +94,38 @@ function App() {
                             {selectedAction === 'addnew' && (
                                 <div className="space-y-8">
                                     {/* Barcode Scanner Input - Always visible and focused */}
-                                    <div className="bg-gray-50 dark:bg-gray-800 p-6 rounded-lg border-2 border-dashed border-lime-500">
-                                        <div className="flex items-center gap-4">
-                                            <div className="flex-1">
-                                                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                                                    📦 Scan Barcode to Start
-                                                </label>
-                                                <div className="flex gap-2">
-                                                    <input
-                                                        ref={barcodeInputRef}
-                                                        type="text"
-                                                        value={barcode}
-                                                        onChange={(e) => setBarcode(e.target.value)}
-                                                        placeholder="Scan or type barcode..."
-                                                        className="flex-1 border-2 border-lime-500 px-4 py-3 text-lg bg-white dark:bg-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-lime-500 rounded"
-                                                        autoFocus
-                                                    />
-                                                    <button
-                                                        type="button"
-                                                        onClick={handleClear}
-                                                        className="px-6 py-3 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded hover:bg-gray-300 dark:hover:bg-gray-600 font-medium"
-                                                    >
-                                                        Clear
-                                                    </button>
-                                                </div>
+                                    <div className="flex items-center gap-4">
+                                        <div className="flex-1">
+                                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Scan Barcode to Start</label>
+                                            <div className="flex gap-2">
+                                                <input
+                                                    ref={barcodeInputRef}
+                                                    type="text"
+                                                    value={barcode}
+                                                    onChange={(e) => setBarcode(e.target.value)}
+                                                    placeholder="Scan or type barcode..."
+                                                    className="flex-1 border-2 border-lime-500 px-4 py-3 text-lg bg-white dark:bg-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-lime-500 rounded"
+                                                    autoFocus
+                                                />
+                                                <button
+                                                    type="button"
+                                                    onClick={handleClear}
+                                                    className="px-6 py-3 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded hover:bg-gray-300 dark:hover:bg-gray-600 font-medium"
+                                                >
+                                                    Clear
+                                                </button>
                                             </div>
-                                            <div className="text-sm text-gray-500 dark:text-gray-400">
-                                                {isLookingUp && <span className="text-lime-500">Looking up...</span>}
-                                                {!isLookingUp && debouncedBarcode && matchedSpools.length > 0 && (
-                                                    <span className="text-green-500">
-                                                        ✓ Found {matchedSpools.length} matching spool{matchedSpools.length > 1 ? 's' : ''}
-                                                    </span>
-                                                )}
-                                                {!isLookingUp && debouncedBarcode && matchedSpools.length === 0 && (
-                                                    <span className="text-blue-500">New barcode - fill in details</span>
-                                                )}
-                                            </div>
+                                        </div>
+                                        <div className="text-sm text-gray-500 dark:text-gray-400">
+                                            {isLookingUp && <span className="text-lime-500">Looking up...</span>}
+                                            {!isLookingUp && debouncedBarcode && matchedSpools.length > 0 && (
+                                                <span className="text-green-500">
+                                                    ✓ Found {matchedSpools.length} matching spool{matchedSpools.length > 1 ? 's' : ''}
+                                                </span>
+                                            )}
+                                            {!isLookingUp && debouncedBarcode && matchedSpools.length === 0 && (
+                                                <span className="text-blue-500">New barcode - fill in details</span>
+                                            )}
                                         </div>
                                     </div>
 

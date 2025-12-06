@@ -1,5 +1,5 @@
 import React from 'react'
-import { MoreHorizontal, ChevronUp, Plus, X, Database } from 'lucide-react'
+import { MoreHorizontal, Plus, X, Database } from 'lucide-react'
 import type { ActionType, ActionButton } from '../types'
 
 interface ActionButtonBarProps {
@@ -22,14 +22,7 @@ const ActionButtonBar: React.FC<ActionButtonBarProps> = ({ selectedAction, onAct
             bgColor: 'bg-amber-500',
             disabled: !hasSelectedRow,
         },
-        {
-            id: 'topup',
-            label: 'TOP UP',
-            icon: <ChevronUp className="w-8 h-8" />,
-            color: 'text-white',
-            bgColor: 'bg-lime-600',
-            disabled: !hasSelectedRow,
-        },
+
         {
             id: 'addnew',
             label: 'ADD NEW',

@@ -1,5 +1,5 @@
 import React from 'react'
-import { MoreHorizontal, ChevronUp, Plus, X, FileText } from 'lucide-react'
+import { MoreHorizontal, Plus, X, FileText } from 'lucide-react'
 
 export type ActionType = 'use' | 'topup' | 'addnew' | 'remove' | 'data'
 
@@ -20,17 +20,6 @@ export const ActionBar: React.FC<ActionBarProps> = ({ selectedAction, onActionSe
                 />
             ),
             color: 'bg-amber-500',
-        },
-        {
-            id: 'topup',
-            label: 'TOP UP',
-            icon: (
-                <ChevronUp
-                    size={28}
-                    className="text-white"
-                />
-            ),
-            color: 'bg-lime-600',
         },
         {
             id: 'addnew',
