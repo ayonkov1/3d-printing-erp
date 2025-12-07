@@ -180,10 +180,8 @@ export const AddNewForm: React.FC<AddNewFormProps> = ({ disabled = false, barcod
         <>
             {/* Show disabled overlay message when form is disabled */}
             {disabled && (
-                <div className="mb-4 p-4 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg">
-                    <p className="text-green-700 dark:text-green-400 text-sm font-medium">
-                        ✓ Spool template found! Use the card on the right to add to inventory.
-                    </p>
+                <div className="mb-4 p-4 bg-teal-50 dark:bg-teal-900/20 border border-teal-200 dark:border-teal-800 rounded-lg">
+                    <p className="text-teal-700 dark:text-teal-400 text-sm font-medium">Spool template found. Use the card on the right to add to inventory.</p>
                 </div>
             )}
 

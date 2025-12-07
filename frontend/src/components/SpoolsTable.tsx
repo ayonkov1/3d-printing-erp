@@ -72,7 +72,7 @@ const SpoolsTable: React.FC<SpoolsTableProps> = ({ onRowSelect }) => {
         }),
         columnHelper.accessor('spool_return', {
             header: 'Returnable',
-            cell: (info) => <div className="text-center">{info.getValue() ? '✓' : '-'}</div>,
+            cell: (info) => <div className="text-center">{info.getValue() ? 'Yes' : '-'}</div>,
         }),
         columnHelper.accessor('is_box', {
             header: 'Box',

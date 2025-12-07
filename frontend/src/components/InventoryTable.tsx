@@ -3,6 +3,7 @@ import { useReactTable, getCoreRowModel, flexRender, createColumnHelper } from '
 import { useInventory, useUpdateInventory, useDeleteInventory } from '../hooks'
 import type { Inventory } from '../types'
 import toast from 'react-hot-toast'
+import { Printer, Package, Trash2 } from 'lucide-react'
 
 const columnHelper = createColumnHelper<Inventory>()
 
@@ -123,7 +124,15 @@ export const InventoryTable: React.FC = () => {
         columnHelper.accessor('is_in_use', {
             header: 'In Printer',
             cell: (info) => (
-                <div className="text-center">{info.getValue() ? <span className="text-blue-500">🖨️ Yes</span> : <span className="text-gray-400">-</span>}</div>
+                <div className="text-center">
+                    {info.getValue() ? (
+                        <span className="text-teal-600 dark:text-teal-400 flex items-center justify-center gap-1">
+                            <Printer size={14} /> Yes
+                        </span>
+                    ) : (
+                        <span className="text-gray-400">-</span>
+                    )}
+                </div>
             ),
         }),
         columnHelper.accessor('custom_properties', {
@@ -140,26 +149,26 @@ export const InventoryTable: React.FC = () => {
                         {item.is_in_use ? (
                             <button
                                 onClick={() => handleMarkInStock(item)}
-                                className="px-2 py-1 text-xs bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 rounded transition-colors cursor-pointer"
+                                className="px-2 py-1 text-xs bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 rounded transition-colors cursor-pointer flex items-center gap-1"
                                 title="Return to stock"
                             >
-                                📦 Stock
+                                <Package size={12} /> Stock
                             </button>
                         ) : (
                             <button
                                 onClick={() => handleMarkInUse(item)}
-                                className="px-2 py-1 text-xs bg-blue-100 dark:bg-blue-900 hover:bg-blue-200 dark:hover:bg-blue-800 text-blue-700 dark:text-blue-300 rounded transition-colors cursor-pointer"
+                                className="px-2 py-1 text-xs bg-teal-100 dark:bg-teal-900 hover:bg-teal-200 dark:hover:bg-teal-800 text-teal-700 dark:text-teal-300 rounded transition-colors cursor-pointer flex items-center gap-1"
                                 title="Mark as in use"
                             >
-                                🖨️ Use
+                                <Printer size={12} /> Use
                             </button>
                         )}
                         <button
                             onClick={() => handleDelete(item)}
-                            className="px-2 py-1 text-xs bg-red-100 dark:bg-red-900 hover:bg-red-200 dark:hover:bg-red-800 text-red-700 dark:text-red-300 rounded transition-colors cursor-pointer"
+                            className="px-2 py-1 text-xs bg-red-100 dark:bg-red-900 hover:bg-red-200 dark:hover:bg-red-800 text-red-700 dark:text-red-300 rounded transition-colors cursor-pointer flex items-center gap-1"
                             title="Remove from inventory"
                         >
-                            🗑️
+                            <Trash2 size={12} />
                         </button>
                     </div>
                 )

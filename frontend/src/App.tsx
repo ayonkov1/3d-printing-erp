@@ -3,8 +3,11 @@ import { Toaster } from 'react-hot-toast'
 import { ThemeProvider } from './contexts/ThemeContext'
 import { Header, AddNewForm, SpoolCatalog, InventoryTable } from './components'
 import type { ActionType } from './components/ActionBar'
+import { LayoutGrid, Table } from 'lucide-react'
 
 import { useSpoolsByBarcode } from './hooks'
+
+type ViewTab = 'catalog' | 'table'
 
 // Custom hook for debounced value
 function useDebouncedValue<T>(value: T, delay: number): T {
@@ -26,6 +29,7 @@ function useDebouncedValue<T>(value: T, delay: number): T {
 function App() {
     const [selectedAction, setSelectedAction] = useState<ActionType>('addnew')
     const [barcode, setBarcode] = useState('')
+    const [viewTab, setViewTab] = useState<ViewTab>('catalog')
     const barcodeInputRef = useRef<HTMLInputElement>(null)
 
     // Debounce barcode for 1 second before lookup
@@ -104,7 +108,7 @@ function App() {
                                                     value={barcode}
                                                     onChange={(e) => setBarcode(e.target.value)}
                                                     placeholder="Scan or type barcode..."
-                                                    className="flex-1 border-2 border-lime-500 px-4 py-3 text-lg bg-white dark:bg-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-lime-500 rounded"
+                                                    className="flex-1 border-2 border-lime-500 px-4 py-3 text-lg bg-white dark:bg-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-teal-500 rounded"
                                                     autoFocus
                                                 />
                                                 <button
@@ -117,20 +121,21 @@ function App() {
                                             </div>
                                         </div>
                                         <div className="text-sm text-gray-500 dark:text-gray-400">
-                                            {isLookingUp && <span className="text-lime-500">Looking up...</span>}
+                                            {isLookingUp && <span className="text-teal-500">Looking up...</span>}
                                             {!isLookingUp && debouncedBarcode && matchedSpools.length > 0 && (
-                                                <span className="text-green-500">
-                                                    ✓ Found {matchedSpools.length} matching spool{matchedSpools.length > 1 ? 's' : ''}
+                                                <span className="text-teal-600 dark:text-teal-400">
+                                                    Found {matchedSpools.length} matching spool{matchedSpools.length > 1 ? 's' : ''}
                                                 </span>
                                             )}
                                             {!isLookingUp && debouncedBarcode && matchedSpools.length === 0 && (
-                                                <span className="text-blue-500">New barcode - fill in details</span>
+                                                <span className="text-emerald-600 dark:text-emerald-400">New barcode - fill in details</span>
                                             )}
                                         </div>
                                     </div>
 
-                                    {/* Row 1: Create new spool archetype form + Catalog */}
+                                    {/* Row 1: Inventory Table (left) + Tabbed View (right) */}
                                     <div className="flex flex-col lg:flex-row gap-8">
+                                        {/* Left side: Add New Form */}
                                         <div className="w-full lg:w-1/3">
                                             <AddNewForm
                                                 disabled={isFormDisabled}
@@ -138,15 +143,39 @@ function App() {
                                                 onSuccess={handleClear}
                                             />
                                         </div>
-                                        <div className="w-full lg:w-2/3">
-                                            {/* Spool Catalog - shows available archetypes to add to inventory */}
-                                            <SpoolCatalog matchedSpools={matchedSpools} />
-                                        </div>
-                                    </div>
 
-                                    {/* Row 2: Inventory Table - shows physical spools in inventory */}
-                                    <div className="w-full">
-                                        <InventoryTable />
+                                        {/* Right side: Tabbed Catalog/Table view */}
+                                        <div className="w-full lg:w-2/3">
+                                            {/* Tab Header */}
+                                            <div className="flex border-b border-gray-200 dark:border-gray-700 mb-4">
+                                                <button
+                                                    onClick={() => setViewTab('catalog')}
+                                                    className={`flex items-center gap-2 px-4 py-2 text-sm font-medium border-b-2 transition-colors cursor-pointer ${
+                                                        viewTab === 'catalog'
+                                                            ? 'border-lime-500 text-lime-600 dark:text-lime-400'
+                                                            : 'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300'
+                                                    }`}
+                                                >
+                                                    <LayoutGrid className="w-4 h-4" />
+                                                    Spool Catalog
+                                                </button>
+                                                <button
+                                                    onClick={() => setViewTab('table')}
+                                                    className={`flex items-center gap-2 px-4 py-2 text-sm font-medium border-b-2 transition-colors cursor-pointer ${
+                                                        viewTab === 'table'
+                                                            ? 'border-lime-500 text-lime-600 dark:text-lime-400'
+                                                            : 'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300'
+                                                    }`}
+                                                >
+                                                    <Table className="w-4 h-4" />
+                                                    Inventory Table
+                                                </button>
+                                            </div>
+
+                                            {/* Tab Content */}
+                                            {viewTab === 'catalog' && <SpoolCatalog matchedSpools={matchedSpools} />}
+                                            {viewTab === 'table' && <InventoryTable />}
+                                        </div>
                                     </div>
                                 </div>
                             )}

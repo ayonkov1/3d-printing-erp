@@ -112,7 +112,7 @@ export const CustomSelect = ({ options, value, onChange, placeholder = 'Select a
                             type="button"
                             onClick={() => handleSelect(option.name)}
                             className={`w-full px-3 py-2 text-left hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center gap-2 cursor-pointer ${
-                                value === option.name ? 'bg-lime-50 dark:bg-lime-900/20' : ''
+                                value === option.name ? 'bg-teal-50 dark:bg-teal-900/20' : ''
                             }`}
                         >
                             {showColorDot && option.color && (

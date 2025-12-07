@@ -42,7 +42,7 @@ export const Header: React.FC<HeaderProps> = ({ selectedAction, onActionSelect }
                     className="text-white"
                 />
             ),
-            color: 'bg-teal-600',
+            color: 'bg-lime-500',
         },
         {
             id: 'remove',

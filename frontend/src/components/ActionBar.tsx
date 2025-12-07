@@ -30,7 +30,7 @@ export const ActionBar: React.FC<ActionBarProps> = ({ selectedAction, onActionSe
                     className="text-white"
                 />
             ),
-            color: 'bg-teal-600',
+            color: 'bg-lime-500',
         },
         {
             id: 'remove',

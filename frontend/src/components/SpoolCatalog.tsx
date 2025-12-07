@@ -59,8 +59,8 @@ export const SpoolCatalog: React.FC<SpoolCatalogProps> = ({ onSpoolSelect, match
             <div className="mb-4">
                 {matchedSpools.length > 0 ? (
                     <>
-                        <h3 className="text-lg font-semibold text-green-600 dark:text-green-400 mb-1">
-                            ✓ {matchedSpools.length} Match{matchedSpools.length > 1 ? 'es' : ''} Found!
+                        <h3 className="text-lg font-semibold text-teal-600 dark:text-teal-400 mb-1">
+                            {matchedSpools.length} Match{matchedSpools.length > 1 ? 'es' : ''} Found
                         </h3>
                         <p className="text-sm text-gray-500 dark:text-gray-400">Click "Add to Inventory" to add a spool to your stock</p>
                     </>
