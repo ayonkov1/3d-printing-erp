@@ -76,7 +76,7 @@ export const SpoolCatalog: React.FC<SpoolCatalogProps> = ({ onSpoolSelect, match
                 {displaySpools.map((spool) => (
                     <div
                         key={spool.id}
-                        className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-4 hover:shadow-md transition-shadow"
+                        className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-4 hover:shadow-md transition-shadow shadow-md flex flex-col"
                     >
                         {/* Color indicator bar */}
                         <div
@@ -85,7 +85,7 @@ export const SpoolCatalog: React.FC<SpoolCatalogProps> = ({ onSpoolSelect, match
                         />
 
                         {/* Spool info */}
-                        <div className="space-y-2">
+                        <div className="space-y-2 flex-1">
                             <div className="flex items-start justify-between">
                                 <div>
                                     <p className="font-medium text-gray-900 dark:text-white">{spool.brand.name}</p>

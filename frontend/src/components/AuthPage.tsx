@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useForm } from 'react-hook-form'
 import { Loader2, Eye, EyeOff, Printer } from 'lucide-react'
@@ -25,7 +25,14 @@ export function AuthPage() {
     const [isLoading, setIsLoading] = useState(false)
     const [showPassword, setShowPassword] = useState(false)
     const navigate = useNavigate()
-    const { login } = useAuth()
+    const { login, user } = useAuth()
+
+    // Redirect to main page if user is already logged in
+    useEffect(() => {
+        if (user) {
+            navigate('/')
+        }
+    }, [user, navigate])
 
     const loginForm = useForm<LoginFormData>({
         defaultValues: { email: '', password: '' },

@@ -86,7 +86,7 @@ function App() {
                     },
                 }}
             />
-            <div className="min-h-screen bg-white dark:bg-gray-900 transition-colors duration-200">
+            <div className="min-h-screen bg-zinc-50 dark:bg-gray-900 transition-colors duration-200">
                 <div className="w-full px-8 py-6">
                     <Header
                         selectedAction={selectedAction}
@@ -108,7 +108,7 @@ function App() {
                                                     value={barcode}
                                                     onChange={(e) => setBarcode(e.target.value)}
                                                     placeholder="Scan or type barcode..."
-                                                    className="flex-1 border-2 border-lime-500 px-4 py-3 text-lg bg-white dark:bg-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-teal-500 rounded"
+                                                    className="flex-1 border-2 border-lime-500 px-4 py-3 text-lg bg-white dark:bg-gray-900 dark:text-white focus:outline-none focus:border-dashed focus:animate-pulse focus:shadow-lg  dark:focus:shadow-lime-500/20 rounded transition-all duration-300 focus:ring-2 focus:ring-lime-500"
                                                     autoFocus
                                                 />
                                                 <button

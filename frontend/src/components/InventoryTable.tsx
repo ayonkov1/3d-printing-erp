@@ -1,16 +1,54 @@
 import React from 'react'
-import { useReactTable, getCoreRowModel, flexRender, createColumnHelper } from '@tanstack/react-table'
+import { useReactTable, getCoreRowModel, flexRender, createColumnHelper, getSortedRowModel, type SortingState } from '@tanstack/react-table'
 import { useInventory, useUpdateInventory, useDeleteInventory } from '../hooks'
 import type { Inventory } from '../types'
 import toast from 'react-hot-toast'
-import { Printer, Package, Trash2 } from 'lucide-react'
+import { Printer, Package, Trash2, ChevronUp, ChevronDown } from 'lucide-react'
 
 const columnHelper = createColumnHelper<Inventory>()
+
+// Utility function to format relative time
+const formatRelativeTime = (dateString: string): string => {
+    const now = new Date()
+    const date = new Date(dateString)
+    const diffInMs = now.getTime() - date.getTime()
+
+    const minute = 60 * 1000
+    const hour = 60 * minute
+    const day = 24 * hour
+    const month = 30 * day
+    const year = 365 * day
+
+    if (diffInMs < minute) {
+        return 'Just now'
+    } else if (diffInMs < hour) {
+        const mins = Math.floor(diffInMs / minute)
+        return `${mins} min`
+    } else if (diffInMs < day) {
+        const hours = Math.floor(diffInMs / hour)
+        return `${hours} H`
+    } else if (diffInMs < month) {
+        const days = Math.floor(diffInMs / day)
+        return `${days} D`
+    } else if (diffInMs < year) {
+        const months = Math.floor(diffInMs / month)
+        return `${months} M`
+    } else {
+        const years = Math.floor(diffInMs / year)
+        return `${years} Y`
+    }
+}
 
 export const InventoryTable: React.FC = () => {
     const { data: inventory = [], isLoading, error } = useInventory()
     const updateInventory = useUpdateInventory()
     const deleteInventory = useDeleteInventory()
+    const [sorting, setSorting] = React.useState<SortingState>([
+        {
+            id: 'created_at',
+            desc: true, // Newest first
+        },
+    ])
 
     const handleMarkInUse = (item: Inventory) => {
         updateInventory.mutate(
@@ -64,6 +102,22 @@ export const InventoryTable: React.FC = () => {
     }
 
     const columns = [
+        columnHelper.accessor('created_at', {
+            header: 'Added',
+            cell: (info) => {
+                const createdAt = info.getValue()
+                return (
+                    <div className="text-left text-sm">
+                        <span className="text-gray-600 dark:text-gray-400">{formatRelativeTime(createdAt)}</span>
+                    </div>
+                )
+            },
+            sortingFn: (a, b) => {
+                const dateA = new Date(a.original.created_at)
+                const dateB = new Date(b.original.created_at)
+                return dateA.getTime() - dateB.getTime()
+            },
+        }),
         columnHelper.accessor((row) => row.spool.brand.name, {
             id: 'brand',
             header: 'Brand',
@@ -149,7 +203,7 @@ export const InventoryTable: React.FC = () => {
                         {item.is_in_use ? (
                             <button
                                 onClick={() => handleMarkInStock(item)}
-                                className="px-2 py-1 text-xs bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 rounded transition-colors cursor-pointer flex items-center gap-1"
+                                className="px-2 py-1 text-xs bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 rounded transition-colors cursor-pointer flex items-center gap-1 w-16 justify-center"
                                 title="Return to stock"
                             >
                                 <Package size={12} /> Stock
@@ -157,7 +211,7 @@ export const InventoryTable: React.FC = () => {
                         ) : (
                             <button
                                 onClick={() => handleMarkInUse(item)}
-                                className="px-2 py-1 text-xs bg-teal-100 dark:bg-teal-900 hover:bg-teal-200 dark:hover:bg-teal-800 text-teal-700 dark:text-teal-300 rounded transition-colors cursor-pointer flex items-center gap-1"
+                                className="px-2 py-1 text-xs bg-teal-100 dark:bg-teal-900 hover:bg-teal-200 dark:hover:bg-teal-800 text-teal-700 dark:text-teal-300 rounded transition-colors cursor-pointer flex items-center gap-1 w-16 justify-center"
                                 title="Mark as in use"
                             >
                                 <Printer size={12} /> Use
@@ -179,7 +233,12 @@ export const InventoryTable: React.FC = () => {
     const table = useReactTable({
         data: inventory,
         columns,
+        state: {
+            sorting,
+        },
+        onSortingChange: setSorting,
         getCoreRowModel: getCoreRowModel(),
+        getSortedRowModel: getSortedRowModel(),
     })
 
     if (isLoading) {
@@ -223,7 +282,39 @@ export const InventoryTable: React.FC = () => {
                                     key={header.id}
                                     className="px-4 py-3 text-left text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wider"
                                 >
-                                    {header.isPlaceholder ? null : flexRender(header.column.columnDef.header, header.getContext())}
+                                    {header.isPlaceholder ? null : (
+                                        <div
+                                            className={`flex items-center gap-1 ${header.column.getCanSort() ? 'cursor-pointer select-none hover:text-gray-800 dark:hover:text-gray-200' : ''}`}
+                                            onClick={header.column.getToggleSortingHandler()}
+                                        >
+                                            {flexRender(header.column.columnDef.header, header.getContext())}
+                                            {header.column.getCanSort() && (
+                                                <span className="flex flex-col">
+                                                    {header.column.getIsSorted() === 'asc' && (
+                                                        <ChevronUp
+                                                            size={12}
+                                                            className="text-lime-600"
+                                                        />
+                                                    )}
+                                                    {header.column.getIsSorted() === 'desc' && (
+                                                        <ChevronDown
+                                                            size={12}
+                                                            className="text-lime-600"
+                                                        />
+                                                    )}
+                                                    {!header.column.getIsSorted() && (
+                                                        <div className="flex flex-col opacity-30">
+                                                            <ChevronUp
+                                                                size={10}
+                                                                className="-mb-1"
+                                                            />
+                                                            <ChevronDown size={10} />
+                                                        </div>
+                                                    )}
+                                                </span>
+                                            )}
+                                        </div>
+                                    )}
                                 </th>
                             ))}
                         </tr>
@@ -233,7 +324,7 @@ export const InventoryTable: React.FC = () => {
                     {table.getRowModel().rows.map((row) => (
                         <tr
                             key={row.id}
-                            className="border-b border-gray-100 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors"
+                            className="border-b border-gray-100 dark:border-gray-800 hover:bg-gray-200 dark:hover:bg-gray-800 transition-colors"
                         >
                             {row.getVisibleCells().map((cell) => (
                                 <td
