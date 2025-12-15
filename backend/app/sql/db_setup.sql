@@ -1,0 +1,3 @@
+-- Database setup script
+-- This file is executed when the database container is started for the first time
+-- You can add custom SQL here if needed, but the application handles table creation and seeding automatically.
