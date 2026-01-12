@@ -1,4 +1,5 @@
 import axios from 'axios'
+import { showError } from '../lib/toast'
 
 // In production (Docker), use empty string for relative paths (same origin via Nginx proxy)
 // In development, use localhost:8000 to hit backend directly
@@ -33,17 +34,22 @@ apiClient.interceptors.response.use(
     (error) => {
         // Handle common errors
         if (error.response?.status === 401) {
-            // Handle unauthorized
-            localStorage.removeItem('token')
-            window.location.href = '/login'
+            // Only redirect if we're not already on the login page
+            const currentPath = window.location.pathname
+            if (!currentPath.includes('/login') && !currentPath.includes('/auth')) {
+                localStorage.removeItem('token')
+                localStorage.removeItem('user')
+                showError('Your session has expired. Please log in again.')
+                window.location.href = '/login'
+            }
         }
 
         if (error.response?.status === 404) {
-            console.error('Resource not found')
+            console.error('Resource not found:', error.config?.url)
         }
 
         if (error.response?.status >= 500) {
-            console.error('Server error occurred')
+            console.error('Server error occurred:', error.response?.status)
         }
 
         return Promise.reject(error)

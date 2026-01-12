@@ -2,9 +2,9 @@ import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useForm } from 'react-hook-form'
 import { Loader2, Eye, EyeOff, Printer } from 'lucide-react'
-import toast from 'react-hot-toast'
 import { authApi, type RegisterCredentials } from '../api/auth'
 import { useAuth } from '../contexts/AuthContext'
+import { showSuccess, showApiError, showError } from '../lib/toast'
 
 type AuthMode = 'login' | 'register'
 
@@ -47,11 +47,10 @@ export function AuthPage() {
         try {
             const response = await authApi.login(data)
             login(response.access_token, response.user)
-            toast.success('Welcome back!')
+            showSuccess(`Welcome back, ${response.user.full_name || response.user.email}!`)
             navigate('/')
         } catch (error: unknown) {
-            const message = (error as { response?: { data?: { detail?: string } } })?.response?.data?.detail || 'Login failed'
-            toast.error(message)
+            showApiError(error, 'Login failed. Please check your credentials and try again.')
         } finally {
             setIsLoading(false)
         }
@@ -59,7 +58,12 @@ export function AuthPage() {
 
     const handleRegister = async (data: RegisterFormData) => {
         if (data.password !== data.confirmPassword) {
-            toast.error('Passwords do not match')
+            showError('Passwords do not match')
+            return
+        }
+
+        if (data.password.length < 6) {
+            showError('Password must be at least 6 characters long')
             return
         }
 
@@ -72,11 +76,10 @@ export function AuthPage() {
             }
             const response = await authApi.register(credentials)
             login(response.access_token, response.user)
-            toast.success('Account created successfully!')
+            showSuccess(`Welcome, ${response.user.full_name || response.user.email}! Your account has been created.`)
             navigate('/')
         } catch (error: unknown) {
-            const message = (error as { response?: { data?: { detail?: string } } })?.response?.data?.detail || 'Registration failed'
-            toast.error(message)
+            showApiError(error, 'Registration failed. Please try again.')
         } finally {
             setIsLoading(false)
         }

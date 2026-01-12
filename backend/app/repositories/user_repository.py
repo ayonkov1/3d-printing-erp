@@ -1,7 +1,7 @@
 from typing import Optional
 from sqlalchemy.orm import Session
 
-from app.models.user import User
+from app.models.user import User, UserRole
 from app.repositories.base import BaseRepository
 
 
@@ -14,10 +14,17 @@ class UserRepository(BaseRepository[User]):
         return self.db.query(User).filter(User.email.ilike(email)).first()
 
     def create_user(
-        self, email: str, hashed_password: str, full_name: Optional[str] = None
+        self, 
+        email: str, 
+        hashed_password: str, 
+        full_name: Optional[str] = None,
+        role: UserRole = UserRole.USER,
     ) -> User:
-        """Create a new user"""
+        """Create a new user with specified role."""
         new_user = User(
-            email=email, hashed_password=hashed_password, full_name=full_name
+            email=email, 
+            hashed_password=hashed_password, 
+            full_name=full_name,
+            role=role,
         )
         return self.create(new_user)

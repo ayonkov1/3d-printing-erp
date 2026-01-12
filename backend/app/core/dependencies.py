@@ -1,4 +1,4 @@
-from typing import Generator
+from typing import Generator, Callable
 from fastapi import Depends
 from sqlalchemy.orm import Session
 from app.database import SessionLocal
@@ -19,6 +19,10 @@ from app.services.trade_name_service import TradeNameService
 from app.services.category_service import CategoryService
 from app.services.status_service import StatusService
 from app.services.inventory_service import InventoryService
+
+# Import authorization components
+from app.core.authorization import Action, authorize
+from app.models.user import User
 
 
 # Database session dependency
@@ -140,3 +144,80 @@ def get_inventory_service(
 ) -> InventoryService:
     """Dependency that provides InventoryService with all its dependencies."""
     return InventoryService(inventory_repo, spool_repo, status_service)
+
+
+# =============================================================================
+# Authorization Dependencies
+# =============================================================================
+# These provide a clean, declarative way to enforce authorization in endpoints.
+# Import get_current_user here to avoid circular imports in endpoints.
+
+def get_current_user_dependency():
+    """
+    Lazy import to avoid circular dependency.
+    Returns the get_current_user function from auth_service.
+    """
+    from app.services.auth_service import get_current_user
+    return get_current_user
+
+
+def require_action(action: Action) -> Callable:
+    """
+    Factory that creates a dependency requiring a specific action.
+    
+    Usage:
+        @router.post("/items")
+        async def create_item(
+            user: User = Depends(require_action(Action.WRITE_INVENTORY))
+        ):
+            # User is guaranteed to have WRITE_INVENTORY permission
+            ...
+    
+    This pattern keeps authorization:
+    - Declarative (you see what's required in the signature)
+    - Centralized (policy is in authorization.py)
+    - Auditable (all checks are logged)
+    """
+    from app.services.auth_service import get_current_user
+    
+    async def dependency(user: User = Depends(get_current_user)) -> User:
+        authorize(user, action)
+        return user
+    
+    return dependency
+
+
+def require_read_inventory() -> Callable:
+    """Dependency that requires read:inventory permission."""
+    return require_action(Action.READ_INVENTORY)
+
+
+def require_write_inventory() -> Callable:
+    """Dependency that requires write:inventory permission."""
+    return require_action(Action.WRITE_INVENTORY)
+
+
+def require_delete_inventory() -> Callable:
+    """Dependency that requires delete:inventory permission."""
+    return require_action(Action.DELETE_INVENTORY)
+
+
+def require_read_catalog() -> Callable:
+    """Dependency that requires read:catalog permission."""
+    return require_action(Action.READ_CATALOG)
+
+
+def require_write_catalog() -> Callable:
+    """Dependency that requires write:catalog permission."""
+    return require_action(Action.WRITE_CATALOG)
+
+
+def require_delete_catalog() -> Callable:
+    """Dependency that requires delete:catalog permission."""
+    return require_action(Action.DELETE_CATALOG)
+
+
+def require_admin() -> Callable:
+    """Dependency that requires admin role (via manage:settings permission)."""
+    return require_action(Action.MANAGE_SETTINGS)
+

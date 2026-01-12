@@ -31,9 +31,12 @@ async def register(
     try:
         user = auth_service.register_user(user_data)
 
-        # Create access token
+        # Create access token with role for authorization
         access_token = create_access_token(
-            data={"user_id": user.id},
+            data={
+                "user_id": user.id,
+                "role": user.role.value,  # Include role in JWT
+            },
             expires_delta=timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES),
         )
 
@@ -45,9 +48,12 @@ async def register(
     except HTTPException:
         raise
     except Exception as e:
+        # Log the error for debugging but don't expose details to user
+        import logging
+        logging.error(f"Registration error: {str(e)}", exc_info=True)
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Internal server error: {str(e)}",
+            detail="Registration failed. Please try again or contact support.",
         )
 
 
@@ -69,9 +75,12 @@ async def login(
             headers={"WWW-Authenticate": "Bearer"},
         )
 
-    # Create access token
+    # Create access token with role for authorization
     access_token = create_access_token(
-        data={"user_id": user.id},
+        data={
+            "user_id": user.id,
+            "role": user.role.value,  # Include role in JWT
+        },
         expires_delta=timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES),
     )
 

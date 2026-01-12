@@ -1,8 +1,21 @@
+"""
+Inventory API Endpoints
+
+Authorization is enforced using the centralized authorization module:
+- READ endpoints require: read:inventory permission (all roles)
+- WRITE endpoints require: write:inventory permission (member, admin)
+- DELETE endpoints require: delete:inventory permission (admin only)
+"""
 from fastapi import APIRouter, Depends, HTTPException, Query
 from typing import List
 from app.schemas.inventory import InventoryCreate, InventoryUpdate, InventoryResponse
 from app.services.inventory_service import InventoryService
-from app.core.dependencies import get_inventory_service
+from app.core.dependencies import (
+    get_inventory_service,
+    require_action,
+)
+from app.core.authorization import Action
+from app.models.user import User
 
 router = APIRouter(prefix="/api/inventory", tags=["Inventory"])
 
@@ -11,10 +24,13 @@ router = APIRouter(prefix="/api/inventory", tags=["Inventory"])
 async def add_to_inventory(
     inventory_data: InventoryCreate,
     service: InventoryService = Depends(get_inventory_service),
+    current_user: User = Depends(require_action(Action.WRITE_INVENTORY)),
 ):
     """
     Add a spool to inventory.
 
+    Requires: write:inventory permission (member or admin role)
+    
     Provide the spool_id (from the catalog) to add a physical unit to inventory.
     If weight is not provided, it defaults to the spool's base_weight.
     """
@@ -32,8 +48,13 @@ async def get_inventory(
     skip: int = Query(0, ge=0, description="Number of records to skip"),
     limit: int = Query(100, ge=1, le=1000, description="Max records to return"),
     service: InventoryService = Depends(get_inventory_service),
+    current_user: User = Depends(require_action(Action.READ_INVENTORY)),
 ):
-    """Get all inventory items with pagination."""
+    """
+    Get all inventory items with pagination.
+    
+    Requires: read:inventory permission (all authenticated users)
+    """
     try:
         inventory = service.get_all_inventory(skip, limit)
         return inventory
@@ -44,8 +65,13 @@ async def get_inventory(
 @router.get("/in-use", response_model=List[InventoryResponse])
 async def get_in_use_inventory(
     service: InventoryService = Depends(get_inventory_service),
+    current_user: User = Depends(require_action(Action.READ_INVENTORY)),
 ):
-    """Get all inventory items currently in use."""
+    """
+    Get all inventory items currently in use.
+    
+    Requires: read:inventory permission (all authenticated users)
+    """
     try:
         inventory = service.get_in_use_inventory()
         return inventory
@@ -57,8 +83,13 @@ async def get_in_use_inventory(
 async def get_inventory_by_spool(
     spool_id: str,
     service: InventoryService = Depends(get_inventory_service),
+    current_user: User = Depends(require_action(Action.READ_INVENTORY)),
 ):
-    """Get all inventory items for a specific spool type."""
+    """
+    Get all inventory items for a specific spool type.
+    
+    Requires: read:inventory permission (all authenticated users)
+    """
     try:
         inventory = service.get_inventory_by_spool(spool_id)
         return inventory
@@ -70,8 +101,13 @@ async def get_inventory_by_spool(
 async def count_inventory_by_spool(
     spool_id: str,
     service: InventoryService = Depends(get_inventory_service),
+    current_user: User = Depends(require_action(Action.READ_INVENTORY)),
 ):
-    """Count how many units of a spool type are in inventory."""
+    """
+    Count how many units of a spool type are in inventory.
+    
+    Requires: read:inventory permission (all authenticated users)
+    """
     try:
         count = service.count_by_spool(spool_id)
         return {"spool_id": spool_id, "count": count}
@@ -83,8 +119,13 @@ async def count_inventory_by_spool(
 async def get_inventory_item(
     inventory_id: str,
     service: InventoryService = Depends(get_inventory_service),
+    current_user: User = Depends(require_action(Action.READ_INVENTORY)),
 ):
-    """Get a single inventory item by ID."""
+    """
+    Get a single inventory item by ID.
+    
+    Requires: read:inventory permission (all authenticated users)
+    """
     try:
         inventory = service.get_inventory_by_id(inventory_id)
         return inventory
@@ -99,8 +140,13 @@ async def update_inventory_item(
     inventory_id: str,
     update_data: InventoryUpdate,
     service: InventoryService = Depends(get_inventory_service),
+    current_user: User = Depends(require_action(Action.WRITE_INVENTORY)),
 ):
-    """Update an inventory item (weight, status, etc.)."""
+    """
+    Update an inventory item (weight, status, etc.).
+    
+    Requires: write:inventory permission (member or admin role)
+    """
     try:
         inventory = service.update_inventory(inventory_id, update_data)
         return inventory
@@ -114,8 +160,13 @@ async def update_inventory_item(
 async def delete_inventory_item(
     inventory_id: str,
     service: InventoryService = Depends(get_inventory_service),
+    current_user: User = Depends(require_action(Action.DELETE_INVENTORY)),
 ):
-    """Remove an inventory item."""
+    """
+    Remove an inventory item.
+    
+    Requires: delete:inventory permission (admin only)
+    """
     try:
         service.delete_inventory(inventory_id)
     except ValueError as e:

@@ -26,7 +26,7 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 # Start backend
 echo -e "${YELLOW}📦 Starting backend server...${NC}"
-(cd "$SCRIPT_DIR/backend" && uvicorn app.main:app --reload) &
+(cd "$SCRIPT_DIR/backend" && source .venv/bin/activate && python -m uvicorn app.main:app --reload --host 0.0.0.0 --port 8000) &
 BACKEND_PID=$!
 echo -e "${GREEN}✅ Backend started (PID: $BACKEND_PID)${NC}"
 
