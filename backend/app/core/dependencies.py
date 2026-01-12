@@ -152,19 +152,21 @@ def get_inventory_service(
 # These provide a clean, declarative way to enforce authorization in endpoints.
 # Import get_current_user here to avoid circular imports in endpoints.
 
+
 def get_current_user_dependency():
     """
     Lazy import to avoid circular dependency.
     Returns the get_current_user function from auth_service.
     """
     from app.services.auth_service import get_current_user
+
     return get_current_user
 
 
 def require_action(action: Action) -> Callable:
     """
     Factory that creates a dependency requiring a specific action.
-    
+
     Usage:
         @router.post("/items")
         async def create_item(
@@ -172,18 +174,18 @@ def require_action(action: Action) -> Callable:
         ):
             # User is guaranteed to have WRITE_INVENTORY permission
             ...
-    
+
     This pattern keeps authorization:
     - Declarative (you see what's required in the signature)
     - Centralized (policy is in authorization.py)
     - Auditable (all checks are logged)
     """
     from app.services.auth_service import get_current_user
-    
+
     async def dependency(user: User = Depends(get_current_user)) -> User:
         authorize(user, action)
         return user
-    
+
     return dependency
 
 
@@ -220,4 +222,3 @@ def require_delete_catalog() -> Callable:
 def require_admin() -> Callable:
     """Dependency that requires admin role (via manage:settings permission)."""
     return require_action(Action.MANAGE_SETTINGS)
-

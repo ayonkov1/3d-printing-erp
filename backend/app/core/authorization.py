@@ -25,27 +25,28 @@ authz_logger = logging.getLogger("authorization")
 class Action(str, Enum):
     """
     Declarative permission actions.
-    
+
     Using the format "verb:resource" makes it easy to:
     - Audit what actions exist
     - Map roles to permissions clearly
     - Evolve from RBAC to ABAC later
     """
+
     # Inventory actions
     READ_INVENTORY = "read:inventory"
     WRITE_INVENTORY = "write:inventory"
     DELETE_INVENTORY = "delete:inventory"
-    
+
     # Catalog actions (colors, brands, materials, spools, etc.)
     READ_CATALOG = "read:catalog"
     WRITE_CATALOG = "write:catalog"
     DELETE_CATALOG = "delete:catalog"
-    
+
     # User management actions
     READ_USERS = "read:users"
     WRITE_USERS = "write:users"
     DELETE_USERS = "delete:users"
-    
+
     # Admin actions
     MANAGE_SETTINGS = "manage:settings"
 
@@ -93,31 +94,31 @@ def is_allowed(
 ) -> bool:
     """
     Core authorization check - determines if a user can perform an action.
-    
+
     This is the model-agnostic enforcement layer that:
     1. Currently implements RBAC (role-based)
     2. Can evolve to ABAC (add resource/attribute checks) without changing API
     3. Always returns a boolean - never throws
-    
+
     Args:
         user: The authenticated user
         action: The action being attempted
         resource: Optional resource for future ABAC support
-        
+
     Returns:
         True if allowed, False otherwise
     """
     if not user or not user.is_active:
         return False
-    
+
     # RBAC check: Does the user's role have this permission?
     user_permissions = ROLE_PERMISSIONS.get(user.role, set())
     allowed = action in user_permissions
-    
+
     # Future: Add ABAC checks here
     # Example: if resource and hasattr(resource, 'owner_id'):
     #     allowed = allowed or resource.owner_id == user.id
-    
+
     return allowed
 
 
@@ -129,32 +130,33 @@ def authorize(
 ) -> None:
     """
     Enforce authorization - raises exception if not allowed.
-    
+
     This is the main entry point for authorization checks.
     It wraps is_allowed() and:
     1. Logs the authorization decision (audit trail)
     2. Raises appropriate HTTP exceptions
     3. Provides clear error messages
-    
+
     Args:
         user: The authenticated user
         action: The action being attempted
         resource: Optional resource object
         resource_id: Optional resource ID for logging
-        
+
     Raises:
         HTTPException: 403 Forbidden if not authorized
     """
     allowed = is_allowed(user, action, resource)
-    
+
     # Audit logging - log every authorization decision
     log_authz_decision(
         user=user,
         action=action,
-        resource_id=resource_id or (getattr(resource, "id", None) if resource else None),
+        resource_id=resource_id
+        or (getattr(resource, "id", None) if resource else None),
         allowed=allowed,
     )
-    
+
     if not allowed:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
@@ -170,7 +172,7 @@ def log_authz_decision(
 ) -> None:
     """
     Log authorization decisions for audit trail.
-    
+
     Best practice: Record who tried to do what, on which resource,
     and what was decided. This helps with:
     - Security audits
@@ -187,7 +189,7 @@ def log_authz_decision(
         "resource_id": resource_id,
         "allowed": allowed,
     }
-    
+
     if allowed:
         authz_logger.info("Authorization allowed", extra=log_data)
     else:
@@ -198,7 +200,7 @@ def log_authz_decision(
 def require_role(user: User, required_role: UserRole) -> None:
     """
     Simple role-based check for cases where you need a specific role.
-    
+
     Note: Prefer using authorize() with Actions for most cases,
     as it's more granular and auditable.
     """
@@ -207,13 +209,13 @@ def require_role(user: User, required_role: UserRole) -> None:
             status_code=status.HTTP_403_FORBIDDEN,
             detail="User is not active",
         )
-    
+
     role_hierarchy = {
         UserRole.VIEWER: 0,
         UserRole.MEMBER: 1,
         UserRole.ADMIN: 2,
     }
-    
+
     if role_hierarchy.get(user.role, -1) < role_hierarchy.get(required_role, 999):
         authz_logger.warning(
             "Role check failed",
@@ -221,7 +223,7 @@ def require_role(user: User, required_role: UserRole) -> None:
                 "user_id": user.id,
                 "user_role": user.role.value,
                 "required_role": required_role.value,
-            }
+            },
         )
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,

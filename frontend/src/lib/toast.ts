@@ -185,12 +185,7 @@ const parseErrorMessage = (error: unknown): string => {
  * Type guard for AxiosError
  */
 function isAxiosError(error: unknown): error is AxiosError<ApiErrorResponse> {
-    return (
-        typeof error === 'object' &&
-        error !== null &&
-        'isAxiosError' in error &&
-        error.isAxiosError === true
-    )
+    return typeof error === 'object' && error !== null && 'isAxiosError' in error && error.isAxiosError === true
 }
 
 /**
@@ -233,14 +228,14 @@ export const dismissAll = () => {
 /**
  * Promise toast - automatically handles loading, success, and error states
  */
-export const showPromiseToast = <T,>(
+export const showPromiseToast = <T>(
     promise: Promise<T>,
     messages: {
         loading: string
         success: string | ((data: T) => string)
         error?: string | ((error: unknown) => string)
     },
-    options?: ToastOptions
+    options?: ToastOptions,
 ): Promise<T> => {
     return toast.promise(
         promise,
@@ -257,6 +252,6 @@ export const showPromiseToast = <T,>(
             error: {
                 duration: options?.duration ?? DEFAULT_DURATIONS.error,
             },
-        }
+        },
     )
 }

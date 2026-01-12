@@ -2,7 +2,7 @@ import React from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useTheme } from '../contexts/ThemeContext'
 import { useAuth } from '../contexts/AuthContext'
-import { Moon, Sun, MoreHorizontal, Plus, X, FileText, LogOut } from 'lucide-react'
+import { Moon, Sun, MoreHorizontal, Plus, X, FileText, LogOut, Shield } from 'lucide-react'
 import type { ActionType } from '../types'
 
 interface HeaderProps {
@@ -80,6 +80,17 @@ export const Header: React.FC<HeaderProps> = ({ selectedAction, onActionSelect }
                         <button className="bg-gray-800 text-white px-8 py-2 text-sm font-medium hover:bg-gray-700 transition-colors dark:bg-gray-700 dark:hover:bg-gray-600 rounded-none h-10 flex items-center cursor-pointer">
                             Profile
                         </button>
+                        {/* Admin-only User Management Button */}
+                        {user?.role === 'ADMIN' && (
+                            <button
+                                onClick={() => navigate('/users')}
+                                className="bg-gradient-to-r from-red-600 to-orange-600 text-white px-8 py-2 text-sm font-medium hover:from-red-700 hover:to-orange-700 transition-all rounded-none h-10 flex items-center gap-2 cursor-pointer shadow-lg hover:shadow-xl"
+                                title="User Management (Admin Only)"
+                            >
+                                <Shield size={16} />
+                                Manage Users
+                            </button>
+                        )}
                         <button
                             onClick={handleLogout}
                             className="bg-red-600 text-white px-8 py-2 text-sm font-medium hover:bg-red-700 transition-colors rounded-none h-10 flex items-center gap-2 cursor-pointer"

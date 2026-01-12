@@ -108,7 +108,7 @@ function App() {
                                                     value={barcode}
                                                     onChange={(e) => setBarcode(e.target.value)}
                                                     placeholder="Scan or type barcode..."
-                                                    className="flex-1 border-2 border-lime-500 px-4 py-3 text-lg bg-white dark:bg-gray-900 dark:text-white focus:outline-none focus:border-dashed focus:animate-pulse focus:shadow-lg  dark:focus:shadow-lime-500/20 rounded transition-all duration-300 focus:ring-2 focus:ring-lime-500"
+                                                    className="flex-1 border-2 border-lime-500 px-4 py-3 text-lg bg-white dark:bg-gray-900 dark:text-white focus:outline-none focus:border-dashed focus:animate-pulse focus:shadow-lg  dark:focus:shadow-lime-500/20 rounded transition-all duration-300"
                                                     autoFocus
                                                 />
                                                 <button

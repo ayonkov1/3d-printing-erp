@@ -25,7 +25,9 @@ class Settings(BaseSettings):
     # JWT Authentication
     SECRET_KEY: str = "your-super-secret-key-change-in-production"
     ALGORITHM: str = "HS256"
-    ACCESS_TOKEN_EXPIRE_MINUTES: int = 30  # 30 minutes (best practice: 5-15 min, 30 for dev)
+    ACCESS_TOKEN_EXPIRE_MINUTES: int = (
+        30  # 30 minutes (best practice: 5-15 min, 30 for dev)
+    )
     # Note: In production, consider 5-15 minutes with refresh tokens
 
     model_config = SettingsConfigDict(

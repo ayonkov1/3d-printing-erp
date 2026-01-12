@@ -1,6 +1,6 @@
 /**
  * Toast Notification System - Usage Examples
- * 
+ *
  * Import from lib:
  * import { showSuccess, showError, showWarning, showInfo, showApiError, showPromiseToast } from '../lib/toast'
  */
@@ -48,24 +48,18 @@ try {
 // ========================================
 
 // Automatically show loading/success/error states
-showPromiseToast(
-    api.updateProfile(data),
-    {
-        loading: 'Updating profile...',
-        success: 'Profile updated successfully!',
-        error: 'Failed to update profile'
-    }
-)
+showPromiseToast(api.updateProfile(data), {
+    loading: 'Updating profile...',
+    success: 'Profile updated successfully!',
+    error: 'Failed to update profile',
+})
 
 // With dynamic success message
-showPromiseToast(
-    api.createItem(newItem),
-    {
-        loading: 'Creating item...',
-        success: (data) => `Created ${data.name} successfully!`,
-        error: (err) => `Failed: ${err.message}`
-    }
-)
+showPromiseToast(api.createItem(newItem), {
+    loading: 'Creating item...',
+    success: (data) => `Created ${data.name} successfully!`,
+    error: (err) => `Failed: ${err.message}`,
+})
 
 // ========================================
 // Loading Toast (Manual Control)
@@ -108,7 +102,7 @@ const handleSubmit = async (data) => {
 // Delete confirmation
 const handleDelete = async (id) => {
     showWarning('Item will be deleted permanently')
-    
+
     try {
         await api.delete(id)
         showSuccess('Item deleted')

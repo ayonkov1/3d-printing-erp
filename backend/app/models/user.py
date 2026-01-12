@@ -8,12 +8,13 @@ import enum
 class UserRole(str, enum.Enum):
     """
     User roles for RBAC authorization.
-    
+
     - ADMIN: Full access to all resources and settings
     - MANAGER: Can manage users and resources
     - USER: Can read/write inventory and catalog items
     - VIEWER: Read-only access to inventory and catalog
     """
+
     ADMIN = "ADMIN"
     MANAGER = "MANAGER"
     USER = "USER"
@@ -31,7 +32,7 @@ class User(Base):
         SQLEnum(UserRole, native_enum=False, length=20),
         nullable=False,
         default=UserRole.USER,
-        index=True
+        index=True,
     )
     is_active = Column(Boolean, default=True)
     created_at = Column(DateTime, default=datetime.utcnow)

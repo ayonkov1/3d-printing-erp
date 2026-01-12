@@ -13,6 +13,7 @@ from app.api import categories
 from app.api import statuses
 from app.api import inventory
 from app.api import auth
+from app.api import users
 
 # Import models to register them with Base
 from app.models.color import Color
@@ -64,6 +65,7 @@ app.include_router(categories.router)
 app.include_router(statuses.router)
 app.include_router(inventory.router)
 app.include_router(auth.router)
+app.include_router(users.router)
 
 
 @app.get("/")

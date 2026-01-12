@@ -36,7 +36,7 @@ def get_password_hash(password: str) -> str:
 def create_access_token(data: dict, expires_delta: Optional[timedelta] = None) -> str:
     """
     Create a JWT access token with proper claims.
-    
+
     Best practices implemented:
     1. Include essential claims (sub, iat, exp)
     2. Add role for authorization decisions
@@ -45,24 +45,26 @@ def create_access_token(data: dict, expires_delta: Optional[timedelta] = None) -
     """
     to_encode = data.copy()
     now = datetime.now(tz=timezone.utc)
-    
+
     if expires_delta:
         expire = now + expires_delta
     else:
         expire = now + timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
-    
+
     # Standard JWT claims + custom claims for authorization
-    to_encode.update({
-        "exp": expire,
-        "iat": now,
-        "iss": settings.APP_NAME,  # Issuer
-        "type": "access",  # Token type for future refresh token support
-    })
-    
+    to_encode.update(
+        {
+            "exp": expire,
+            "iat": now,
+            "iss": settings.APP_NAME,  # Issuer
+            "type": "access",  # Token type for future refresh token support
+        }
+    )
+
     encoded_jwt = jwt.encode(
-        to_encode, 
-        settings.SECRET_KEY, 
-        algorithm=settings.ALGORITHM  # Explicitly pin algorithm
+        to_encode,
+        settings.SECRET_KEY,
+        algorithm=settings.ALGORITHM,  # Explicitly pin algorithm
     )
     return encoded_jwt
 
@@ -70,7 +72,7 @@ def create_access_token(data: dict, expires_delta: Optional[timedelta] = None) -
 def decode_token(token: str) -> Optional[TokenData]:
     """
     Decode and validate a JWT token.
-    
+
     Best practices implemented:
     1. Explicitly specify allowed algorithms (prevent algorithm confusion attacks)
     2. Validate required claims exist
@@ -78,25 +80,25 @@ def decode_token(token: str) -> Optional[TokenData]:
     """
     try:
         payload = jwt.decode(
-            token, 
-            settings.SECRET_KEY, 
+            token,
+            settings.SECRET_KEY,
             algorithms=[settings.ALGORITHM],  # Only accept our algorithm
             options={
                 "require_exp": True,
                 "require_iat": True,
-            }
+            },
         )
-        
+
         user_id = payload.get("user_id")
         if user_id is None:
             auth_logger.warning("Token missing user_id claim")
             return None
-        
+
         # Extract role from token if present (for faster authz checks)
         role = payload.get("role")
-        
+
         return TokenData(user_id=user_id, role=role)
-        
+
     except JWTError as e:
         # Log the error type but never the token itself
         auth_logger.warning(f"JWT validation failed: {type(e).__name__}")
@@ -120,17 +122,17 @@ class AuthService:
 
         # Hash password and create user with role
         hashed_password = get_password_hash(user_data.password)
-        
+
         # Use the role enum directly - values now match DB (uppercase)
         role = UserRole[user_data.role.name] if user_data.role else UserRole.USER
-        
+
         user = self.user_repo.create_user(
             email=user_data.email,
             hashed_password=hashed_password,
             full_name=user_data.full_name,
             role=role,
         )
-        
+
         auth_logger.info(f"New user registered: {user.email} with role {role.value}")
         return user
 
@@ -156,7 +158,7 @@ async def get_current_user(
 ) -> User:
     """
     Dependency to get the current authenticated user.
-    
+
     Best practices:
     1. Clear separation of 401 (auth failed) vs 403 (not authorized)
     2. Log authentication events
@@ -176,16 +178,18 @@ async def get_current_user(
 
     auth_service = AuthService(db)
     user = auth_service.get_user_by_id(token_data.user_id)
-    
+
     if user is None:
-        auth_logger.warning(f"Authentication failed: user not found (id={token_data.user_id})")
+        auth_logger.warning(
+            f"Authentication failed: user not found (id={token_data.user_id})"
+        )
         raise credentials_exception
 
     if not user.is_active:
         auth_logger.warning(f"Authentication failed: inactive user (id={user.id})")
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,  # 403 = user exists but not allowed
-            detail="User account is deactivated"
+            detail="User account is deactivated",
         )
 
     auth_logger.info(f"User authenticated successfully (id={user.id})")
@@ -195,7 +199,7 @@ async def get_current_user(
 def redact_auth_header(headers: dict) -> dict:
     """
     Utility to redact authorization headers from logs.
-    
+
     Best practice: Never log raw tokens - they can leak to log aggregators,
     monitoring tools, and become permanent security risks.
     """

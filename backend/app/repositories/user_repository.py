@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import Optional, List
 from sqlalchemy.orm import Session
 
 from app.models.user import User, UserRole
@@ -13,17 +13,25 @@ class UserRepository(BaseRepository[User]):
         """Find user by email (case-insensitive)"""
         return self.db.query(User).filter(User.email.ilike(email)).first()
 
+    def find_by_id(self, user_id: str) -> Optional[User]:
+        """Find user by ID"""
+        return self.get_by_id(user_id)
+
+    def find_all(self) -> List[User]:
+        """Get all users"""
+        return self.db.query(User).order_by(User.created_at.desc()).all()
+
     def create_user(
-        self, 
-        email: str, 
-        hashed_password: str, 
+        self,
+        email: str,
+        hashed_password: str,
         full_name: Optional[str] = None,
         role: UserRole = UserRole.USER,
     ) -> User:
         """Create a new user with specified role."""
         new_user = User(
-            email=email, 
-            hashed_password=hashed_password, 
+            email=email,
+            hashed_password=hashed_password,
             full_name=full_name,
             role=role,
         )

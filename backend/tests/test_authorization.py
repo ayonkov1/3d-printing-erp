@@ -7,6 +7,7 @@ Best practice: Test authorization like you test money movement.
 - Test role escalation prevention
 - Test edge cases (inactive users, missing roles)
 """
+
 import pytest
 from unittest.mock import MagicMock
 from fastapi import HTTPException
@@ -28,6 +29,7 @@ from app.models.user import User, UserRole
 # =============================================================================
 # Fixtures
 # =============================================================================
+
 
 @pytest.fixture
 def admin_user():
@@ -77,6 +79,7 @@ def inactive_user():
 # Role Permission Mapping Tests
 # =============================================================================
 
+
 class TestRolePermissions:
     """Test that role-permission mappings are correct."""
 
@@ -84,21 +87,20 @@ class TestRolePermissions:
         """Admin should have all defined actions."""
         admin_perms = ROLE_PERMISSIONS[UserRole.ADMIN]
         all_actions = set(Action)
-        
+
         # Admin should have every action
-        assert admin_perms == all_actions, \
-            f"Admin missing: {all_actions - admin_perms}"
+        assert admin_perms == all_actions, f"Admin missing: {all_actions - admin_perms}"
 
     def test_member_permissions(self):
         """Member should have read/write but not delete or user management."""
         member_perms = ROLE_PERMISSIONS[UserRole.USER]
-        
+
         # Should have
         assert Action.READ_INVENTORY in member_perms
         assert Action.WRITE_INVENTORY in member_perms
         assert Action.READ_CATALOG in member_perms
         assert Action.WRITE_CATALOG in member_perms
-        
+
         # Should NOT have
         assert Action.DELETE_INVENTORY not in member_perms
         assert Action.DELETE_CATALOG not in member_perms
@@ -108,49 +110,50 @@ class TestRolePermissions:
     def test_viewer_is_read_only(self):
         """Viewer should only have read permissions."""
         viewer_perms = ROLE_PERMISSIONS[UserRole.VIEWER]
-        
+
         # Should have read
         assert Action.READ_INVENTORY in viewer_perms
         assert Action.READ_CATALOG in viewer_perms
-        
+
         # Should NOT have any write/delete
         for action in Action:
             if action.value.startswith(("write:", "delete:", "manage:")):
-                assert action not in viewer_perms, \
-                    f"Viewer should not have {action}"
+                assert action not in viewer_perms, f"Viewer should not have {action}"
 
 
 # =============================================================================
 # is_allowed() Tests
 # =============================================================================
 
+
 class TestIsAllowed:
     """Test the core is_allowed function."""
 
-    @pytest.mark.parametrize("role,action,expected", [
-        # Admin can do everything
-        (UserRole.ADMIN, Action.READ_INVENTORY, True),
-        (UserRole.ADMIN, Action.WRITE_INVENTORY, True),
-        (UserRole.ADMIN, Action.DELETE_INVENTORY, True),
-        (UserRole.ADMIN, Action.MANAGE_SETTINGS, True),
-        
-        # Member can read/write but not delete
-        (UserRole.USER, Action.READ_INVENTORY, True),
-        (UserRole.USER, Action.WRITE_INVENTORY, True),
-        (UserRole.USER, Action.DELETE_INVENTORY, False),
-        (UserRole.MEMBER, Action.MANAGE_SETTINGS, False),
-        
-        # Viewer can only read
-        (UserRole.VIEWER, Action.READ_INVENTORY, True),
-        (UserRole.VIEWER, Action.WRITE_INVENTORY, False),
-        (UserRole.VIEWER, Action.DELETE_INVENTORY, False),
-    ])
+    @pytest.mark.parametrize(
+        "role,action,expected",
+        [
+            # Admin can do everything
+            (UserRole.ADMIN, Action.READ_INVENTORY, True),
+            (UserRole.ADMIN, Action.WRITE_INVENTORY, True),
+            (UserRole.ADMIN, Action.DELETE_INVENTORY, True),
+            (UserRole.ADMIN, Action.MANAGE_SETTINGS, True),
+            # Member can read/write but not delete
+            (UserRole.USER, Action.READ_INVENTORY, True),
+            (UserRole.USER, Action.WRITE_INVENTORY, True),
+            (UserRole.USER, Action.DELETE_INVENTORY, False),
+            (UserRole.MEMBER, Action.MANAGE_SETTINGS, False),
+            # Viewer can only read
+            (UserRole.VIEWER, Action.READ_INVENTORY, True),
+            (UserRole.VIEWER, Action.WRITE_INVENTORY, False),
+            (UserRole.VIEWER, Action.DELETE_INVENTORY, False),
+        ],
+    )
     def test_role_permissions(self, role, action, expected):
         """Test that role permissions are enforced correctly."""
         user = MagicMock(spec=User)
         user.role = role
         user.is_active = True
-        
+
         assert is_allowed(user, action) == expected
 
     def test_inactive_user_denied(self, inactive_user):
@@ -168,6 +171,7 @@ class TestIsAllowed:
 # authorize() Tests
 # =============================================================================
 
+
 class TestAuthorize:
     """Test the authorize enforcement function."""
 
@@ -180,7 +184,7 @@ class TestAuthorize:
         """Should raise 403 when action is denied."""
         with pytest.raises(HTTPException) as exc_info:
             authorize(viewer_user, Action.DELETE_INVENTORY)
-        
+
         assert exc_info.value.status_code == 403
         assert "Permission denied" in exc_info.value.detail
 
@@ -188,13 +192,14 @@ class TestAuthorize:
         """Should raise 403 for inactive users."""
         with pytest.raises(HTTPException) as exc_info:
             authorize(inactive_user, Action.READ_INVENTORY)
-        
+
         assert exc_info.value.status_code == 403
 
 
 # =============================================================================
 # Convenience Function Tests
 # =============================================================================
+
 
 class TestConvenienceFunctions:
     """Test helper functions for common permission checks."""
@@ -222,6 +227,7 @@ class TestConvenienceFunctions:
 # require_role() Tests
 # =============================================================================
 
+
 class TestRequireRole:
     """Test the role-based requirement function."""
 
@@ -233,14 +239,14 @@ class TestRequireRole:
         """Member should fail admin requirement."""
         with pytest.raises(HTTPException) as exc_info:
             require_role(member_user, UserRole.ADMIN)
-        
+
         assert exc_info.value.status_code == 403
 
     def test_viewer_fails_member_requirement(self, viewer_user):
         """Viewer should fail member requirement."""
         with pytest.raises(HTTPException) as exc_info:
             require_role(viewer_user, UserRole.MEMBER)
-        
+
         assert exc_info.value.status_code == 403
 
     def test_admin_passes_viewer_requirement(self, admin_user):
@@ -252,6 +258,7 @@ class TestRequireRole:
 # Edge Cases and Security Tests
 # =============================================================================
 
+
 class TestSecurityEdgeCases:
     """Test security edge cases and potential attack vectors."""
 
@@ -260,7 +267,7 @@ class TestSecurityEdgeCases:
         user = MagicMock(spec=User)
         user.role = "hacker"  # Invalid role
         user.is_active = True
-        
+
         # Should be denied (fail closed)
         assert is_allowed(user, Action.READ_INVENTORY) is False
 
@@ -273,10 +280,11 @@ class TestSecurityEdgeCases:
             Action.DELETE_USERS,
             Action.MANAGE_SETTINGS,
         ]
-        
+
         for action in admin_only_actions:
-            assert is_allowed(viewer_user, action) is False, \
-                f"Viewer should not have {action}"
+            assert (
+                is_allowed(viewer_user, action) is False
+            ), f"Viewer should not have {action}"
 
     def test_get_permissions_for_unknown_role(self):
         """Unknown role should return empty permissions (deny by default)."""

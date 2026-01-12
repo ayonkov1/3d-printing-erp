@@ -10,6 +10,7 @@ export * from './SpoolCatalog'
 export * from './InventoryTable'
 export * from './AuthPage'
 export * from './ProtectedRoute'
+export * from './UsersManagementPage'
 // Exporting old components just in case, but we might not need them
 export { default as TopNavBar } from './TopNavBar'
 export { default as ActionButtonBar } from './ActionButtonBar'

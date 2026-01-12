@@ -6,6 +6,7 @@ Authorization is enforced using the centralized authorization module:
 - WRITE endpoints require: write:inventory permission (member, admin)
 - DELETE endpoints require: delete:inventory permission (admin only)
 """
+
 from fastapi import APIRouter, Depends, HTTPException, Query
 from typing import List
 from app.schemas.inventory import InventoryCreate, InventoryUpdate, InventoryResponse
@@ -30,7 +31,7 @@ async def add_to_inventory(
     Add a spool to inventory.
 
     Requires: write:inventory permission (member or admin role)
-    
+
     Provide the spool_id (from the catalog) to add a physical unit to inventory.
     If weight is not provided, it defaults to the spool's base_weight.
     """
@@ -52,7 +53,7 @@ async def get_inventory(
 ):
     """
     Get all inventory items with pagination.
-    
+
     Requires: read:inventory permission (all authenticated users)
     """
     try:
@@ -69,7 +70,7 @@ async def get_in_use_inventory(
 ):
     """
     Get all inventory items currently in use.
-    
+
     Requires: read:inventory permission (all authenticated users)
     """
     try:
@@ -87,7 +88,7 @@ async def get_inventory_by_spool(
 ):
     """
     Get all inventory items for a specific spool type.
-    
+
     Requires: read:inventory permission (all authenticated users)
     """
     try:
@@ -105,7 +106,7 @@ async def count_inventory_by_spool(
 ):
     """
     Count how many units of a spool type are in inventory.
-    
+
     Requires: read:inventory permission (all authenticated users)
     """
     try:
@@ -123,7 +124,7 @@ async def get_inventory_item(
 ):
     """
     Get a single inventory item by ID.
-    
+
     Requires: read:inventory permission (all authenticated users)
     """
     try:
@@ -144,7 +145,7 @@ async def update_inventory_item(
 ):
     """
     Update an inventory item (weight, status, etc.).
-    
+
     Requires: write:inventory permission (member or admin role)
     """
     try:
@@ -164,7 +165,7 @@ async def delete_inventory_item(
 ):
     """
     Remove an inventory item.
-    
+
     Requires: delete:inventory permission (admin only)
     """
     try:

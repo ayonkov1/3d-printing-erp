@@ -50,6 +50,7 @@ async def register(
     except Exception as e:
         # Log the error for debugging but don't expose details to user
         import logging
+
         logging.error(f"Registration error: {str(e)}", exc_info=True)
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
