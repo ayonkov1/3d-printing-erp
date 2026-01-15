@@ -24,16 +24,6 @@ createRoot(document.getElementById('root')!).render(
                                 fontSize: '14px',
                                 cursor: 'pointer',
                             },
-                            onClick: (event) => {
-                                const toastElement = (event.target as HTMLElement).closest('[data-sonner-toast], [role="status"]')
-                                if (toastElement) {
-                                    const toastId = toastElement.getAttribute('data-toast-id')
-                                    if (toastId) {
-                                        const { dismiss } = require('react-hot-toast')
-                                        dismiss.default(toastId)
-                                    }
-                                }
-                            },
                         }}
                     />
                     <Routes>
