@@ -21,6 +21,10 @@ class UserRepository(BaseRepository[User]):
         """Get all users"""
         return self.db.query(User).order_by(User.created_at.desc()).all()
 
+    def count_users(self) -> int:
+        """Count total number of users"""
+        return self.db.query(User).count()
+
     def create_user(
         self,
         email: str,

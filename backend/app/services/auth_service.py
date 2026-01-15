@@ -111,7 +111,7 @@ class AuthService:
         self.user_repo = UserRepository(db)
 
     def register_user(self, user_data: UserCreate) -> User:
-        """Register a new user with role."""
+        """Register a new user with role. First user gets ADMIN role, all others get VIEWER role."""
         # Check if user already exists
         existing_user = self.user_repo.find_by_email(user_data.email)
         if existing_user:
@@ -123,8 +123,14 @@ class AuthService:
         # Hash password and create user with role
         hashed_password = get_password_hash(user_data.password)
 
-        # Use the role enum directly - values now match DB (uppercase)
-        role = UserRole[user_data.role.name] if user_data.role else UserRole.USER
+        # Determine role: first user gets ADMIN, all others get VIEWER
+        user_count = self.user_repo.count_users()
+        if user_count == 0:
+            role = UserRole.ADMIN
+            auth_logger.info(f"Creating first user with ADMIN role: {user_data.email}")
+        else:
+            role = UserRole.VIEWER
+            auth_logger.info(f"Creating user with VIEWER role: {user_data.email}")
 
         user = self.user_repo.create_user(
             email=user_data.email,
