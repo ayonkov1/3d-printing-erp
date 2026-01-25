@@ -1,5 +1,5 @@
 from pydantic_settings import BaseSettings, SettingsConfigDict
-from typing import List
+from typing import List, Optional
 
 
 class Settings(BaseSettings):
@@ -29,6 +29,10 @@ class Settings(BaseSettings):
         30  # 30 minutes (best practice: 5-15 min, 30 for dev)
     )
     # Note: In production, consider 5-15 minutes with refresh tokens
+
+    # OpenAI Configuration
+    OPENAI_API_KEY: Optional[str] = None  # Set via environment variable
+    OPENAI_MODEL: str = "gpt-4o-mini"  # Cost-effective model for insights
 
     model_config = SettingsConfigDict(
         env_file=".env", case_sensitive=True, extra="ignore"

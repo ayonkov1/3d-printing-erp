@@ -14,6 +14,7 @@ from app.api import statuses
 from app.api import inventory
 from app.api import auth
 from app.api import users
+from app.api import dashboard
 
 # Import models to register them with Base
 from app.models.color import Color
@@ -25,6 +26,13 @@ from app.models.category import Category
 from app.models.status import Status
 from app.models.inventory import Inventory
 from app.models.user import User
+from app.models.activity_log import ActivityLog
+from app.models.job import Job
+from app.models.insight import Insight
+
+# Import worker and scheduler
+from app.services.job_worker import job_worker
+from app.services.scheduler import setup_scheduler, shutdown_scheduler
 
 
 @asynccontextmanager
@@ -34,8 +42,19 @@ async def lifespan(app: FastAPI):
     create_tables()
     print("✅ Database tables created")
     seed_database()
+
+    # Start background worker and scheduler
+    job_worker.start()
+    print("✅ Job worker started")
+    setup_scheduler()
+    print("✅ Scheduler started (daily insights at 6:00 AM)")
+
     yield
-    # Shutdown (nothing to do for now)
+
+    # Shutdown
+    job_worker.stop()
+    shutdown_scheduler()
+    print("✅ Background services stopped")
 
 
 app = FastAPI(
@@ -66,6 +85,7 @@ app.include_router(statuses.router)
 app.include_router(inventory.router)
 app.include_router(auth.router)
 app.include_router(users.router)
+app.include_router(dashboard.router)
 
 
 @app.get("/")

@@ -19,7 +19,12 @@ bcrypt==3.2.2  # Pin bcrypt version for compatibility with passlib
 # Python dependencies
 python-dotenv==1.0.0
 
+# HTTP client for OpenAI API
+httpx==0.25.1
+
+# Background job scheduling
+apscheduler==3.10.4
+
 # Optional (за development)
 pytest==7.4.3
 pytest-cov==7.0.0
-httpx==0.25.1  # За testing

@@ -36,7 +36,7 @@ async def add_to_inventory(
     If weight is not provided, it defaults to the spool's base_weight.
     """
     try:
-        inventory = service.add_to_inventory(inventory_data)
+        inventory = service.add_to_inventory(inventory_data, user=current_user)
         return inventory
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
@@ -149,7 +149,9 @@ async def update_inventory_item(
     Requires: write:inventory permission (member or admin role)
     """
     try:
-        inventory = service.update_inventory(inventory_id, update_data)
+        inventory = service.update_inventory(
+            inventory_id, update_data, user=current_user
+        )
         return inventory
     except ValueError as e:
         raise HTTPException(status_code=404, detail=str(e))
@@ -169,7 +171,7 @@ async def delete_inventory_item(
     Requires: delete:inventory permission (admin only)
     """
     try:
-        service.delete_inventory(inventory_id)
+        service.delete_inventory(inventory_id, user=current_user)
     except ValueError as e:
         raise HTTPException(status_code=404, detail=str(e))
     except Exception as e:

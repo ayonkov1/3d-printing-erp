@@ -10,6 +10,9 @@ from app.repositories.trade_name_repository import TradeNameRepository
 from app.repositories.category_repository import CategoryRepository
 from app.repositories.status_repository import StatusRepository
 from app.repositories.inventory_repository import InventoryRepository
+from app.repositories.activity_log_repository import ActivityLogRepository
+from app.repositories.job_repository import JobRepository
+from app.repositories.insight_repository import InsightRepository
 
 from app.services.color_service import ColorService
 from app.services.brand_service import BrandService
@@ -19,6 +22,9 @@ from app.services.trade_name_service import TradeNameService
 from app.services.category_service import CategoryService
 from app.services.status_service import StatusService
 from app.services.inventory_service import InventoryService
+from app.services.activity_log_service import ActivityLogService
+from app.services.ai_insights_service import AIInsightsService
+from app.services.dashboard_service import DashboardService
 
 # Import authorization components
 from app.core.authorization import Action, authorize
@@ -75,6 +81,21 @@ def get_inventory_repository(db: Session = Depends(get_db)) -> InventoryReposito
     return InventoryRepository(db)
 
 
+def get_activity_log_repository(db: Session = Depends(get_db)) -> ActivityLogRepository:
+    """Dependency that provides ActivityLogRepository"""
+    return ActivityLogRepository(db)
+
+
+def get_job_repository(db: Session = Depends(get_db)) -> JobRepository:
+    """Dependency that provides JobRepository"""
+    return JobRepository(db)
+
+
+def get_insight_repository(db: Session = Depends(get_db)) -> InsightRepository:
+    """Dependency that provides InsightRepository"""
+    return InsightRepository(db)
+
+
 # Service dependencies
 def get_color_service(
     color_repo: ColorRepository = Depends(get_color_repository),
@@ -118,6 +139,13 @@ def get_status_service(
     return StatusService(status_repo)
 
 
+def get_activity_log_service(
+    activity_log_repo: ActivityLogRepository = Depends(get_activity_log_repository),
+) -> ActivityLogService:
+    """Dependency that provides ActivityLogService"""
+    return ActivityLogService(activity_log_repo)
+
+
 def get_spool_service(
     spool_repo: SpoolRepository = Depends(get_spool_repository),
     color_service: ColorService = Depends(get_color_service),
@@ -125,6 +153,7 @@ def get_spool_service(
     material_service: MaterialService = Depends(get_material_service),
     trade_name_service: TradeNameService = Depends(get_trade_name_service),
     category_service: CategoryService = Depends(get_category_service),
+    activity_log_service: ActivityLogService = Depends(get_activity_log_service),
 ) -> SpoolService:
     """Dependency that provides SpoolService with all its dependencies."""
     return SpoolService(
@@ -134,6 +163,7 @@ def get_spool_service(
         material_service,
         trade_name_service,
         category_service,
+        activity_log_service,
     )
 
 
@@ -141,9 +171,40 @@ def get_inventory_service(
     inventory_repo: InventoryRepository = Depends(get_inventory_repository),
     spool_repo: SpoolRepository = Depends(get_spool_repository),
     status_service: StatusService = Depends(get_status_service),
+    activity_log_service: ActivityLogService = Depends(get_activity_log_service),
 ) -> InventoryService:
     """Dependency that provides InventoryService with all its dependencies."""
-    return InventoryService(inventory_repo, spool_repo, status_service)
+    return InventoryService(
+        inventory_repo, spool_repo, status_service, activity_log_service
+    )
+
+
+def get_ai_insights_service(
+    activity_log_repo: ActivityLogRepository = Depends(get_activity_log_repository),
+    insight_repo: InsightRepository = Depends(get_insight_repository),
+    job_repo: JobRepository = Depends(get_job_repository),
+    inventory_repo: InventoryRepository = Depends(get_inventory_repository),
+) -> AIInsightsService:
+    """Dependency that provides AIInsightsService"""
+    return AIInsightsService(
+        activity_log_repo=activity_log_repo,
+        insight_repo=insight_repo,
+        job_repo=job_repo,
+        inventory_repo=inventory_repo,
+    )
+
+
+def get_dashboard_service(
+    inventory_repo: InventoryRepository = Depends(get_inventory_repository),
+    activity_log_repo: ActivityLogRepository = Depends(get_activity_log_repository),
+    insight_repo: InsightRepository = Depends(get_insight_repository),
+) -> DashboardService:
+    """Dependency that provides DashboardService"""
+    return DashboardService(
+        inventory_repo=inventory_repo,
+        activity_log_repo=activity_log_repo,
+        insight_repo=insight_repo,
+    )
 
 
 # =============================================================================

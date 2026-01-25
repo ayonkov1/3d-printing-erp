@@ -36,6 +36,11 @@ def create_tables():
     from app.models.inventory import Inventory
     from app.models.user import User
 
+    # New models for AI features
+    from app.models.activity_log import ActivityLog
+    from app.models.job import Job
+    from app.models.insight import Insight
+
     # TODO: Understand reflection and why imports should be here
 
     Base.metadata.create_all(bind=engine)

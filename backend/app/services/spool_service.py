@@ -5,7 +5,9 @@ from app.services.brand_service import BrandService
 from app.services.material_service import MaterialService
 from app.services.trade_name_service import TradeNameService
 from app.services.category_service import CategoryService
+from app.services.activity_log_service import ActivityLogService, ActionType, EntityType
 from app.models.spool import Spool
+from app.models.user import User
 from app.schemas.spool import SpoolCreate, generate_barcode
 
 
@@ -20,6 +22,7 @@ class SpoolService:
         material_service: MaterialService,
         trade_name_service: Optional[TradeNameService] = None,
         category_service: Optional[CategoryService] = None,
+        activity_log_service: Optional[ActivityLogService] = None,
     ):
         self.spool_repo = spool_repo
         self.color_service = color_service
@@ -27,8 +30,30 @@ class SpoolService:
         self.material_service = material_service
         self.trade_name_service = trade_name_service
         self.category_service = category_service
+        self.activity_log_service = activity_log_service
 
-    def create_spool(self, spool_data: SpoolCreate) -> Spool:
+    def _log_activity(
+        self,
+        action_type: str,
+        description: str,
+        entity_id: Optional[str] = None,
+        metadata: Optional[dict] = None,
+        user: Optional[User] = None,
+    ) -> None:
+        """Helper to log activity if service is available"""
+        if self.activity_log_service:
+            self.activity_log_service.log(
+                action_type=action_type,
+                entity_type=EntityType.SPOOL,
+                entity_id=entity_id,
+                description=description,
+                metadata=metadata,
+                user=user,
+            )
+
+    def create_spool(
+        self, spool_data: SpoolCreate, user: Optional[User] = None
+    ) -> Spool:
         """
         Create new spool type in catalog with automatic find-or-create for lookup tables.
 
@@ -97,7 +122,24 @@ class SpoolService:
             category_id=category_id,
         )
 
-        return self.spool_repo.create(spool)
+        created = self.spool_repo.create(spool)
+
+        # Log the activity
+        self._log_activity(
+            action_type=ActionType.SPOOL_CREATED,
+            description=f"Created new spool type: {spool_data.color_name} {spool_data.material_name} ({spool_data.brand_name}) - {spool_data.base_weight}g",
+            entity_id=created.id,
+            metadata={
+                "barcode": barcode,
+                "color": spool_data.color_name,
+                "material": spool_data.material_name,
+                "brand": spool_data.brand_name,
+                "base_weight": spool_data.base_weight,
+            },
+            user=user,
+        )
+
+        return created
 
     def get_all_spools(self, skip: int = 0, limit: int = 100) -> List[Spool]:
         """
