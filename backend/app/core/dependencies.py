@@ -198,12 +198,14 @@ def get_dashboard_service(
     inventory_repo: InventoryRepository = Depends(get_inventory_repository),
     activity_log_repo: ActivityLogRepository = Depends(get_activity_log_repository),
     insight_repo: InsightRepository = Depends(get_insight_repository),
+    job_repo: JobRepository = Depends(get_job_repository),
 ) -> DashboardService:
     """Dependency that provides DashboardService"""
     return DashboardService(
         inventory_repo=inventory_repo,
         activity_log_repo=activity_log_repo,
         insight_repo=insight_repo,
+        job_repo=job_repo,
     )
 
 

@@ -37,7 +37,7 @@ class ActivityLog(Base):
     # Example: "User admin added 1000g Blue PLA spool to inventory"
 
     # Additional context as JSON string
-    metadata = Column(Text, nullable=True)
+    extra_data = Column(Text, nullable=True)
     # Store extra details like old/new values, quantities, etc.
 
     # Who performed the action

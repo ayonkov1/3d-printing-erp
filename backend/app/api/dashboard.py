@@ -4,7 +4,7 @@ Dashboard API Endpoints
 Provides endpoints for dashboard data and AI insights.
 """
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, status
 from typing import List
 
 from app.schemas.dashboard import (
@@ -15,6 +15,7 @@ from app.schemas.dashboard import (
 )
 from app.schemas.activity_log import ActivityLogResponse
 from app.schemas.insight import InsightResponse
+from app.schemas.job import JobResponse
 from app.services.dashboard_service import DashboardService
 from app.services.ai_insights_service import AIInsightsService
 from app.core.dependencies import (
@@ -124,6 +125,28 @@ async def get_latest_insight(
         raise HTTPException(status_code=500, detail=f"Internal server error: {str(e)}")
 
 
+@router.delete("/insights/{insight_id}", status_code=status.HTTP_204_NO_CONTENT)
+async def delete_insight(
+    insight_id: str,
+    service: DashboardService = Depends(get_dashboard_service),
+    current_user: User = Depends(require_action(Action.WRITE_INVENTORY)),
+):
+    """
+    Delete an AI insight.
+
+    Requires: write:inventory permission
+    """
+    try:
+        deleted = service.delete_insight(insight_id)
+        if not deleted:
+            raise HTTPException(status_code=404, detail="Insight not found")
+        return None
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Internal server error: {str(e)}")
+
+
 @router.post("/insights/generate", response_model=GenerateInsightResponse)
 async def generate_insight(
     ai_service: AIInsightsService = Depends(get_ai_insights_service),
@@ -147,3 +170,20 @@ async def generate_insight(
         raise HTTPException(
             status_code=500, detail=f"Failed to generate insight: {str(e)}"
         )
+
+
+@router.get("/jobs", response_model=List[JobResponse])
+async def get_jobs(
+    limit: int = 20,
+    service: DashboardService = Depends(get_dashboard_service),
+    current_user: User = Depends(require_action(Action.READ_INVENTORY)),
+):
+    """
+    Get recent jobs and their status.
+
+    Requires: read:inventory permission
+    """
+    try:
+        return service.get_recent_jobs(limit=limit)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Internal server error: {str(e)}")

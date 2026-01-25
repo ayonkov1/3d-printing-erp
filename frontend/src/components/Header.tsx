@@ -2,7 +2,7 @@ import React from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useTheme } from '../contexts/ThemeContext'
 import { useAuth } from '../contexts/AuthContext'
-import { Moon, Sun, MoreHorizontal, Plus, X, FileText, LogOut, Shield } from 'lucide-react'
+import { Moon, Sun, MoreHorizontal, Plus, X, FileText, LogOut, Shield, LayoutDashboard } from 'lucide-react'
 import type { ActionType } from '../types'
 
 interface HeaderProps {
@@ -77,6 +77,13 @@ export const Header: React.FC<HeaderProps> = ({ selectedAction, onActionSelect }
                         {user?.role && <span className="text-2xl text-gray-500 dark:text-gray-400 ml-2">[{user.role}]</span>}
                     </h1>
                     <div className="flex gap-4">
+                        <button
+                            onClick={() => navigate('/dashboard')}
+                            className="bg-gradient-to-r from-purple-600 to-indigo-600 text-white px-8 py-2 text-sm font-medium hover:from-purple-700 hover:to-indigo-700 transition-all rounded-none h-10 flex items-center gap-2 cursor-pointer shadow-lg hover:shadow-xl"
+                        >
+                            <LayoutDashboard size={16} />
+                            Dashboard
+                        </button>
                         <button className="bg-gray-800 text-white px-8 py-2 text-sm font-medium hover:bg-gray-700 transition-colors dark:bg-gray-700 dark:hover:bg-gray-600 rounded-none h-10 flex items-center cursor-pointer">
                             Profile
                         </button>

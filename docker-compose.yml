@@ -23,11 +23,11 @@ services:
     backend:
         build: ./backend
         container_name: fastapi_backend
+        env_file:
+            - ./backend/.env
         environment:
+            # Override host for Docker networking
             POSTGRES_HOST: db
-            POSTGRES_USER: erp_user
-            POSTGRES_PASSWORD: erp_password
-            POSTGRES_DB: erp_db
         depends_on:
             - db
         networks:

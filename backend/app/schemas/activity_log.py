@@ -14,7 +14,7 @@ class ActivityLogCreate(BaseModel):
     entity_type: str
     entity_id: Optional[str] = None
     description: str
-    metadata: Optional[str] = None
+    extra_data: Optional[str] = None
     user_id: Optional[str] = None
     user_email: Optional[str] = None
 
@@ -27,7 +27,7 @@ class ActivityLogResponse(BaseModel):
     entity_type: str
     entity_id: Optional[str]
     description: str
-    metadata: Optional[str]
+    extra_data: Optional[str]
     user_id: Optional[str]
     user_email: Optional[str]
     created_at: datetime

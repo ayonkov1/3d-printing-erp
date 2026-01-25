@@ -6,7 +6,8 @@ import './index.css'
 import App from './App.tsx'
 import { QueryProvider } from './providers'
 import { AuthProvider } from './contexts/AuthContext'
-import { AuthPage, ProtectedRoute } from './components'
+import { ThemeProvider } from './contexts/ThemeContext'
+import { AuthPage, ProtectedRoute, Dashboard } from './components'
 import { UsersManagementPage } from './components/UsersManagementPage'
 
 createRoot(document.getElementById('root')!).render(
@@ -14,40 +15,66 @@ createRoot(document.getElementById('root')!).render(
         <QueryProvider>
             <BrowserRouter>
                 <AuthProvider>
-                    <Toaster
-                        position="top-right"
-                        toastOptions={{
-                            duration: 4000,
-                            style: {
-                                borderRadius: '8px',
-                                padding: '12px 16px',
-                                fontSize: '14px',
-                                cursor: 'pointer',
-                            },
-                        }}
-                    />
-                    <Routes>
-                        <Route
-                            path="/login"
-                            element={<AuthPage />}
+                    <ThemeProvider>
+                        <Toaster
+                            position="top-right"
+                            toastOptions={{
+                                duration: 4000,
+                                style: {
+                                    borderRadius: '8px',
+                                    padding: '12px 16px',
+                                    fontSize: '14px',
+                                    cursor: 'pointer',
+                                },
+                            }}
                         />
-                        <Route
-                            path="/users"
-                            element={
-                                <ProtectedRoute>
-                                    <UsersManagementPage />
-                                </ProtectedRoute>
-                            }
-                        />
-                        <Route
-                            path="/*"
-                            element={
-                                <ProtectedRoute>
-                                    <App />
-                                </ProtectedRoute>
-                            }
-                        />
-                    </Routes>
+                        <Routes>
+                            <Route
+                                path="/login"
+                                element={<AuthPage />}
+                            />
+                            <Route
+                                path="/dashboard"
+                                element={
+                                    <ProtectedRoute>
+                                        <Dashboard />
+                                    </ProtectedRoute>
+                                }
+                            />
+                            <Route
+                                path="/users"
+                                element={
+                                    <ProtectedRoute>
+                                        <UsersManagementPage />
+                                    </ProtectedRoute>
+                                }
+                            />
+                            <Route
+                                path="/inventory"
+                                element={
+                                    <ProtectedRoute>
+                                        <App />
+                                    </ProtectedRoute>
+                                }
+                            />
+                            <Route
+                                path="/"
+                                element={
+                                    <ProtectedRoute>
+                                        <Dashboard />
+                                    </ProtectedRoute>
+                                }
+                            />
+                            <Route
+                                path="/*"
+                                element={
+                                    <ProtectedRoute>
+                                        <Dashboard />
+                                    </ProtectedRoute>
+                                }
+                            />
+                        </Routes>
+                    </ThemeProvider>
                 </AuthProvider>
             </BrowserRouter>
         </QueryProvider>

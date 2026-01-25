@@ -8,8 +8,10 @@ from typing import Optional, List
 from app.repositories.inventory_repository import InventoryRepository
 from app.repositories.activity_log_repository import ActivityLogRepository
 from app.repositories.insight_repository import InsightRepository
+from app.repositories.job_repository import JobRepository
 from app.models.activity_log import ActivityLog
 from app.models.insight import Insight
+from app.models.job import Job
 from app.schemas.dashboard import InventoryStats
 
 
@@ -21,10 +23,12 @@ class DashboardService:
         inventory_repo: InventoryRepository,
         activity_log_repo: ActivityLogRepository,
         insight_repo: InsightRepository,
+        job_repo: Optional[JobRepository] = None,
     ):
         self.inventory_repo = inventory_repo
         self.activity_log_repo = activity_log_repo
         self.insight_repo = insight_repo
+        self.job_repo = job_repo
 
     def get_inventory_stats(self) -> InventoryStats:
         """Get inventory statistics for dashboard"""
@@ -60,3 +64,17 @@ class DashboardService:
     def get_insights_history(self, limit: int = 10) -> List[Insight]:
         """Get historical insights"""
         return self.insight_repo.get_recent(limit)
+
+    def get_recent_jobs(self, limit: int = 20) -> List[Job]:
+        """Get recent jobs for dashboard"""
+        if self.job_repo:
+            return self.job_repo.get_recent_jobs(limit)
+        return []
+
+    def delete_insight(self, insight_id: str) -> bool:
+        """Delete an insight by ID"""
+        insight = self.insight_repo.get_by_id(insight_id)
+        if insight:
+            self.insight_repo.delete(insight)
+            return True
+        return False

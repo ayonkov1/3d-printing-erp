@@ -77,7 +77,7 @@ class ActivityLogService:
             entity_type=entity_type,
             entity_id=entity_id,
             description=description,
-            metadata=json.dumps(metadata) if metadata else None,
+            extra_data=json.dumps(metadata) if metadata else None,
             user_id=user.id if user else None,
             user_email=user.email if user else None,
         )
@@ -111,11 +111,11 @@ class ActivityLogService:
                 "entity": log.entity_type,
                 "description": log.description,
             }
-            if log.metadata:
+            if log.extra_data:
                 try:
-                    entry["details"] = json.loads(log.metadata)
+                    entry["details"] = json.loads(log.extra_data)
                 except json.JSONDecodeError:
-                    entry["details"] = log.metadata
+                    entry["details"] = log.extra_data
             formatted_logs.append(entry)
 
         return json.dumps(formatted_logs, indent=2)
