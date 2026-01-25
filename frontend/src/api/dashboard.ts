@@ -74,7 +74,7 @@ export const dashboardApi = {
     ): Promise<void> => {
         const token = localStorage.getItem('token')
 
-        const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:8000'}/api/dashboard/insights/generate/stream`, {
+        const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:8000'}/api/dashboard/insights/generate/`, {
             method: 'POST',
             headers: {
                 'Authorization': `Bearer ${token}`,
