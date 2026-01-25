@@ -128,7 +128,8 @@ export const useGenerateInsightStream = () => {
                     // Append each chunk to the streaming content
                     setStreamingContent((prev) => prev + content)
                 },
-                (insight: Insight) => {
+                // eslint-disable-next-line @typescript-eslint/no-unused-vars
+                (_insight: Insight) => {
                     // When complete, invalidate queries to refresh the UI
                     queryClient.invalidateQueries({ queryKey: dashboardKeys.all })
                     setIsGenerating(false)

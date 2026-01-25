@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState } from 'react'
 import ReactMarkdown from 'react-markdown'
 import { useDashboard, useGenerateInsightStream, useInsightsHistory, useJobs, useDeleteInsight } from '../hooks/useDashboard'
 import type { ActivityLog, Insight, Job } from '../types/dashboard'
