@@ -1,12 +1,10 @@
-import React, { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import React, { useState, useEffect } from 'react'
 import ReactMarkdown from 'react-markdown'
-import { useDashboard, useGenerateInsight, useInsightsHistory, useJobs, useDeleteInsight } from '../hooks/useDashboard'
-import { useTheme } from '../contexts/ThemeContext'
-import { useAuth } from '../contexts/AuthContext'
+import { useDashboard, useGenerateInsightStream, useInsightsHistory, useJobs, useDeleteInsight } from '../hooks/useDashboard'
 import type { ActivityLog, Insight, Job } from '../types/dashboard'
 import toast from 'react-hot-toast'
 import { ConfirmModal } from './ConfirmModal'
+import { NavBar } from './NavBar'
 import {
     BarChart3,
     Package,
@@ -16,15 +14,10 @@ import {
     RefreshCw,
     Clock,
     User,
-    Moon,
-    Sun,
-    LogOut,
     Plus,
     History,
     ChevronDown,
     ChevronUp,
-    Shield,
-    Warehouse,
     Briefcase,
     CheckCircle2,
     XCircle,
@@ -191,12 +184,13 @@ const JobItem: React.FC<{ job: Job }> = ({ job }) => {
     )
 }
 
-// AI Insight panel with markdown rendering
+// AI Insight panel with markdown rendering and streaming support
 const InsightPanel: React.FC<{
     insight: Insight | null
     onGenerate: () => void
     isGenerating: boolean
-}> = ({ insight, onGenerate, isGenerating }) => (
+    streamingContent?: string
+}> = ({ insight, onGenerate, isGenerating, streamingContent = '' }) => (
     <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 h-full flex flex-col">
         <div className="p-4 border-b border-gray-100 dark:border-gray-700 flex items-center justify-between">
             <div className="flex items-center gap-2">
@@ -214,7 +208,38 @@ const InsightPanel: React.FC<{
         </div>
 
         <div className="flex-1 p-4 overflow-y-auto">
-            {insight ? (
+            {isGenerating && streamingContent ? (
+                <div className="prose prose-sm dark:prose-invert max-w-none">
+                    <div className="mb-2 flex items-center gap-2 text-purple-600 dark:text-purple-400 text-sm font-medium">
+                        <Loader2 className="w-4 h-4 animate-spin" />
+                        Generating insights...
+                    </div>
+                    <ReactMarkdown
+                        components={{
+                            h1: ({ children }) => <h1 className="text-xl font-bold text-gray-900 dark:text-white mb-3">{children}</h1>,
+                            h2: ({ children }) => <h2 className="text-lg font-semibold text-gray-800 dark:text-gray-200 mb-2 mt-4">{children}</h2>,
+                            h3: ({ children }) => <h3 className="text-base font-medium text-gray-700 dark:text-gray-300 mb-2 mt-3">{children}</h3>,
+                            p: ({ children }) => <p className="text-gray-700 dark:text-gray-300 mb-3 leading-relaxed">{children}</p>,
+                            ul: ({ children }) => <ul className="list-disc list-inside mb-3 space-y-1">{children}</ul>,
+                            ol: ({ children }) => <ol className="list-decimal list-inside mb-3 space-y-1">{children}</ol>,
+                            li: ({ children }) => <li className="text-gray-700 dark:text-gray-300">{children}</li>,
+                            strong: ({ children }) => <strong className="font-semibold text-gray-900 dark:text-white">{children}</strong>,
+                            em: ({ children }) => <em className="italic text-gray-600 dark:text-gray-400">{children}</em>,
+                            code: ({ children }) => (
+                                <code className="bg-gray-100 dark:bg-gray-700 px-1.5 py-0.5 rounded text-sm font-mono text-purple-600 dark:text-purple-400">
+                                    {children}
+                                </code>
+                            ),
+                            blockquote: ({ children }) => (
+                                <blockquote className="border-l-4 border-purple-500 pl-4 italic text-gray-600 dark:text-gray-400 my-3">{children}</blockquote>
+                            ),
+                        }}
+                    >
+                        {streamingContent}
+                    </ReactMarkdown>
+                    <span className="inline-block w-2 h-4 bg-purple-500 animate-pulse ml-1" />
+                </div>
+            ) : insight ? (
                 <div className="prose prose-sm dark:prose-invert max-w-none">
                     <ReactMarkdown
                         components={{
@@ -318,28 +343,24 @@ const InsightsHistory: React.FC<{
 
 // Main Dashboard component
 export const Dashboard: React.FC = () => {
-    const navigate = useNavigate()
-    const { theme, toggleTheme } = useTheme()
-    const { user, logout } = useAuth()
     const { data: dashboard, isLoading, error } = useDashboard()
     const { data: insightsHistory } = useInsightsHistory(5)
     const { data: jobs } = useJobs(10)
-    const generateInsight = useGenerateInsight()
+    const { generate, isGenerating, streamingContent, error: streamError, reset } = useGenerateInsightStream()
     const deleteInsight = useDeleteInsight()
 
     // State for delete confirmation modal
     const [deleteModalOpen, setDeleteModalOpen] = useState(false)
     const [insightToDelete, setInsightToDelete] = useState<string | null>(null)
 
-    const handleGenerateInsight = () => {
-        generateInsight.mutate(undefined, {
-            onSuccess: (data) => {
-                toast.success(data.message)
-            },
-            onError: (err) => {
-                toast.error(`Failed to generate insight: ${err.message}`)
-            },
-        })
+    const handleGenerateInsight = async () => {
+        reset() // Clear any previous streaming content
+        try {
+            await generate()
+            toast.success('Insight generated successfully')
+        } catch (err) {
+            toast.error(streamError || 'Failed to generate insight')
+        }
     }
 
     const handleDeleteClick = (insightId: string) => {
@@ -365,11 +386,6 @@ export const Dashboard: React.FC = () => {
     const handleCancelDelete = () => {
         setDeleteModalOpen(false)
         setInsightToDelete(null)
-    }
-
-    const handleLogout = () => {
-        logout()
-        navigate('/login')
     }
 
     if (isLoading) {
@@ -408,62 +424,7 @@ export const Dashboard: React.FC = () => {
     return (
         <div className="min-h-screen bg-zinc-50 dark:bg-gray-900 transition-colors duration-200">
             <div className="w-full px-8 py-6">
-                {/* Header - same style as inventory page */}
-                <div className="mb-8">
-                    <div className="flex justify-between items-end">
-                        <div className="flex flex-col gap-4">
-                            <h1 className="text-4xl font-light text-gray-800 dark:text-gray-100">
-                                Dashboard
-                                {user?.role && <span className="text-2xl text-gray-500 dark:text-gray-400 ml-2">[{user.role}]</span>}
-                            </h1>
-                            <div className="flex gap-4">
-                                <button
-                                    onClick={() => navigate('/inventory')}
-                                    className="bg-lime-500 text-white px-8 py-2 text-sm font-medium hover:bg-lime-600 transition-colors rounded-none h-10 flex items-center gap-2 cursor-pointer"
-                                >
-                                    <Warehouse size={16} />
-                                    Inventory
-                                </button>
-                                <button className="bg-gray-800 text-white px-8 py-2 text-sm font-medium hover:bg-gray-700 transition-colors dark:bg-gray-700 dark:hover:bg-gray-600 rounded-none h-10 flex items-center cursor-pointer">
-                                    Profile
-                                </button>
-                                {/* Admin-only User Management Button */}
-                                {user?.role === 'ADMIN' && (
-                                    <button
-                                        onClick={() => navigate('/users')}
-                                        className="bg-gradient-to-r from-red-600 to-orange-600 text-white px-8 py-2 text-sm font-medium hover:from-red-700 hover:to-orange-700 transition-all rounded-none h-10 flex items-center gap-2 cursor-pointer shadow-lg hover:shadow-xl"
-                                        title="User Management (Admin Only)"
-                                    >
-                                        <Shield size={16} />
-                                        Manage Users
-                                    </button>
-                                )}
-                                <button
-                                    onClick={handleLogout}
-                                    className="bg-red-600 text-white px-8 py-2 text-sm font-medium hover:bg-red-700 transition-colors rounded-none h-10 flex items-center gap-2 cursor-pointer"
-                                >
-                                    <LogOut size={16} />
-                                    Logout
-                                </button>
-                                <button
-                                    onClick={toggleTheme}
-                                    className="bg-gray-800 text-white px-8 py-2 text-sm font-medium hover:bg-gray-700 transition-colors dark:bg-gray-700 dark:hover:bg-gray-600 rounded-none h-10 flex items-center justify-center cursor-pointer"
-                                    aria-label="Toggle theme"
-                                >
-                                    {theme === 'light' ? (
-                                        <Moon size={18} />
-                                    ) : (
-                                        <Sun
-                                            size={18}
-                                            className="text-white"
-                                        />
-                                    )}
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                    <hr className="border-gray-300 dark:border-gray-700 mt-6" />
-                </div>
+                <NavBar title="Dashboard" />
 
                 {/* Stats Grid */}
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
@@ -543,7 +504,8 @@ export const Dashboard: React.FC = () => {
                         <InsightPanel
                             insight={latestInsight || null}
                             onGenerate={handleGenerateInsight}
-                            isGenerating={generateInsight.isPending}
+                            isGenerating={isGenerating}
+                            streamingContent={streamingContent}
                         />
                     </div>
 

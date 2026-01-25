@@ -1,5 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
+import { useState, useCallback } from 'react'
 import { dashboardApi } from '../api/dashboard'
+import type { Insight } from '../types/dashboard'
 
 // Query keys factory
 export const dashboardKeys = {
@@ -104,4 +106,54 @@ export const useJobs = (limit = 20) => {
         queryFn: () => dashboardApi.getJobs(limit),
         refetchInterval: 10000, // Refresh every 10 seconds to catch job updates
     })
+}
+
+/**
+ * Generate insight with streaming
+ */
+export const useGenerateInsightStream = () => {
+    const queryClient = useQueryClient()
+    const [isGenerating, setIsGenerating] = useState(false)
+    const [streamingContent, setStreamingContent] = useState('')
+    const [error, setError] = useState<string | null>(null)
+
+    const generate = useCallback(async () => {
+        setIsGenerating(true)
+        setStreamingContent('')
+        setError(null)
+
+        try {
+            await dashboardApi.generateInsightStream(
+                (content) => {
+                    // Append each chunk to the streaming content
+                    setStreamingContent((prev) => prev + content)
+                },
+                (insight: Insight) => {
+                    // When complete, invalidate queries to refresh the UI
+                    queryClient.invalidateQueries({ queryKey: dashboardKeys.all })
+                    setIsGenerating(false)
+                },
+                (errorMsg) => {
+                    setError(errorMsg)
+                    setIsGenerating(false)
+                },
+            )
+        } catch (err) {
+            setError(err instanceof Error ? err.message : 'Failed to generate insight')
+            setIsGenerating(false)
+        }
+    }, [queryClient])
+
+    const reset = useCallback(() => {
+        setStreamingContent('')
+        setError(null)
+    }, [])
+
+    return {
+        generate,
+        isGenerating,
+        streamingContent,
+        error,
+        reset,
+    }
 }

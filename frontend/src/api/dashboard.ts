@@ -62,6 +62,71 @@ export const dashboardApi = {
     },
 
     /**
+     * Generate a new AI insight with streaming (streams content as it's generated)
+     * @param onChunk - Callback for each content chunk
+     * @param onComplete - Callback when insight is complete with saved insight data
+     * @param onError - Callback for errors
+     */
+    generateInsightStream: async (
+        onChunk: (content: string) => void,
+        onComplete: (insight: Insight) => void,
+        onError: (error: string) => void,
+    ): Promise<void> => {
+        const token = localStorage.getItem('token')
+
+        const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:8000'}/api/dashboard/insights/generate/stream`, {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json',
+            },
+        })
+
+        if (!response.ok) {
+            throw new Error(`Failed to generate insight: ${response.statusText}`)
+        }
+
+        const reader = response.body?.getReader()
+        const decoder = new TextDecoder()
+
+        if (!reader) {
+            throw new Error('No response body')
+        }
+
+        try {
+            while (true) {
+                const { done, value } = await reader.read()
+
+                if (done) break
+
+                const chunk = decoder.decode(value)
+                const lines = chunk.split('\n')
+
+                for (const line of lines) {
+                    if (line.startsWith('data: ')) {
+                        const data = line.slice(6)
+                        try {
+                            const parsed = JSON.parse(data)
+
+                            if (parsed.type === 'content') {
+                                onChunk(parsed.content)
+                            } else if (parsed.type === 'complete') {
+                                onComplete(parsed.insight)
+                            } else if (parsed.type === 'error') {
+                                onError(parsed.error)
+                            }
+                        } catch (e) {
+                            // Ignore JSON parse errors
+                        }
+                    }
+                }
+            }
+        } finally {
+            reader.releaseLock()
+        }
+    },
+
+    /**
      * Get recent jobs and their status
      */
     getJobs: async (limit = 20): Promise<Job[]> => {

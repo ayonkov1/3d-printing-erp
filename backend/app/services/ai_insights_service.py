@@ -93,9 +93,15 @@ Please analyze this data and provide:
             activity_logs=formatted_logs,
         )
 
-    async def _call_openai(self, prompt: str) -> str:
-        """Call OpenAI API and return the response"""
+    async def _call_openai(self, prompt: str, stream: bool = False):
+        """Call OpenAI API and return the response (streaming or non-streaming)"""
         if not settings.OPENAI_API_KEY:
+            if stream:
+
+                async def error_stream():
+                    yield "⚠️ OpenAI API key not configured. Please set OPENAI_API_KEY in your environment variables to enable AI insights."
+
+                return error_stream()
             return "⚠️ OpenAI API key not configured. Please set OPENAI_API_KEY in your environment variables to enable AI insights."
 
         async with httpx.AsyncClient(timeout=60.0) as client:
@@ -113,17 +119,27 @@ Please analyze this data and provide:
                     ],
                     "temperature": 0.7,
                     "max_tokens": 1000,
+                    "stream": stream,
                 },
             )
 
             if response.status_code != 200:
                 error_detail = response.text
+                if stream:
+
+                    async def error_stream():
+                        yield f"❌ OpenAI API error: {response.status_code} - {error_detail}"
+
+                    return error_stream()
                 raise Exception(
                     f"OpenAI API error: {response.status_code} - {error_detail}"
                 )
 
-            data = response.json()
-            return data["choices"][0]["message"]["content"]
+            if stream:
+                return response.aiter_lines()
+            else:
+                data = response.json()
+                return data["choices"][0]["message"]["content"]
 
     async def generate_insight(
         self, job_id: Optional[str] = None, generated_by: str = "manual"
@@ -141,7 +157,7 @@ Please analyze this data and provide:
         prompt = self._build_prompt()
 
         try:
-            content = await self._call_openai(prompt)
+            content = await self._call_openai(prompt, stream=False)
         except Exception as e:
             content = f"❌ Failed to generate insight: {str(e)}"
 
@@ -152,6 +168,63 @@ Please analyze this data and provide:
         )
 
         return self.insight_repo.create(insight)
+
+    async def generate_insight_stream(self, generated_by: str = "manual"):
+        """
+        Generate a new AI insight with streaming response.
+
+        Args:
+            generated_by: How the insight was triggered ("manual", "scheduled", "openai")
+
+        Yields:
+            Server-sent events with streaming content and final insight data
+        """
+        prompt = self._build_prompt()
+        accumulated_content = []
+
+        try:
+            stream = await self._call_openai(prompt, stream=True)
+
+            async for line in stream:
+                if not line:
+                    continue
+
+                # Remove 'data: ' prefix if present
+                if line.startswith("data: "):
+                    line = line[6:]
+
+                # Check for stream end
+                if line == "[DONE]":
+                    break
+
+                try:
+                    chunk_data = json.loads(line)
+                    if "choices" in chunk_data:
+                        delta = chunk_data["choices"][0].get("delta", {})
+                        if "content" in delta:
+                            content_chunk = delta["content"]
+                            accumulated_content.append(content_chunk)
+                            # Send the chunk as SSE
+                            yield f"data: {json.dumps({'type': 'content', 'content': content_chunk})}\n\n"
+                except json.JSONDecodeError:
+                    continue
+
+            # After streaming completes, save the insight
+            full_content = "".join(accumulated_content)
+            if full_content:
+                insight = Insight(
+                    content=full_content,
+                    job_id=None,
+                    generated_by=generated_by,
+                )
+                saved_insight = self.insight_repo.create(insight)
+
+                # Send the final insight data
+                yield f"data: {json.dumps({'type': 'complete', 'insight': {'id': saved_insight.id, 'content': saved_insight.content, 'created_at': saved_insight.created_at.isoformat(), 'generated_by': saved_insight.generated_by}})}\n\n"
+
+        except Exception as e:
+            error_message = f"❌ Failed to generate insight: {str(e)}"
+            yield f"data: {json.dumps({'type': 'error', 'error': error_message})}\n\n"
 
     def get_latest_insight(self) -> Optional[Insight]:
         """Get the most recent insight"""

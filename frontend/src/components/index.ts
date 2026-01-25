@@ -1,4 +1,5 @@
 export * from './Header'
+export * from './NavBar'
 export * from './ActionBar'
 export * from './AddNewForm'
 export * from './AddMaterialModal'
@@ -13,7 +14,7 @@ export * from './ProtectedRoute'
 export * from './UsersManagementPage'
 export * from './Dashboard'
 // Exporting old components just in case, but we might not need them
-export { default as TopNavBar } from './TopNavBar'
+
 export { default as ActionButtonBar } from './ActionButtonBar'
 export { default as MainContent } from './MainContent'
 export { default as Layout } from './Layout'

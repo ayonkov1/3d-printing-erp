@@ -1,11 +1,11 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Users as UsersIcon, Shield, UserX, UserCheck, Loader2, LayoutDashboard, Warehouse, LogOut, Moon, Sun } from 'lucide-react'
+import { Users as UsersIcon, UserX, UserCheck, Loader2 } from 'lucide-react'
 import { usersApi } from '../api/users'
 import type { User } from '../api/auth'
 import { useAuth } from '../contexts/AuthContext'
-import { useTheme } from '../contexts/ThemeContext'
 import { showSuccess, showError, showApiError, showWarning } from '../lib/toast'
+import { NavBar } from './NavBar'
 
 const ROLE_OPTIONS = ['ADMIN', 'MANAGER', 'USER', 'VIEWER'] as const
 const ROLE_COLORS = {
@@ -16,17 +16,11 @@ const ROLE_COLORS = {
 }
 
 export function UsersManagementPage() {
-    const { user: currentUser, logout } = useAuth()
-    const { theme, toggleTheme } = useTheme()
+    const { user: currentUser } = useAuth()
     const navigate = useNavigate()
     const [users, setUsers] = useState<User[]>([])
     const [isLoading, setIsLoading] = useState(true)
     const [actionLoading, setActionLoading] = useState<string | null>(null)
-
-    const handleLogout = () => {
-        logout()
-        navigate('/login')
-    }
 
     // Strict authorization check - only admins can access this page
     useEffect(() => {
@@ -108,60 +102,9 @@ export function UsersManagementPage() {
     }
 
     return (
-        <div className="min-h-screen bg-gray-50 dark:bg-gray-900 p-8">
-            <div className="max-w-7xl mx-auto">
-                {/* Header - same style as inventory and dashboard pages */}
-                <div className="mb-8">
-                    <div className="flex justify-between items-end">
-                        <div className="flex flex-col gap-4">
-                            <h1 className="text-4xl font-light text-gray-800 dark:text-gray-100">
-                                User Management
-                                {currentUser?.role && <span className="text-2xl text-gray-500 dark:text-gray-400 ml-2">[{currentUser.role}]</span>}
-                            </h1>
-                            <div className="flex gap-4">
-                                <button
-                                    onClick={() => navigate('/dashboard')}
-                                    className="bg-gradient-to-r from-purple-600 to-indigo-600 text-white px-8 py-2 text-sm font-medium hover:from-purple-700 hover:to-indigo-700 transition-all rounded-none h-10 flex items-center gap-2 cursor-pointer shadow-lg hover:shadow-xl"
-                                >
-                                    <LayoutDashboard size={16} />
-                                    Dashboard
-                                </button>
-                                <button
-                                    onClick={() => navigate('/inventory')}
-                                    className="bg-lime-500 text-white px-8 py-2 text-sm font-medium hover:bg-lime-600 transition-colors rounded-none h-10 flex items-center gap-2 cursor-pointer"
-                                >
-                                    <Warehouse size={16} />
-                                    Inventory
-                                </button>
-                                <button className="bg-gray-800 text-white px-8 py-2 text-sm font-medium hover:bg-gray-700 transition-colors dark:bg-gray-700 dark:hover:bg-gray-600 rounded-none h-10 flex items-center cursor-pointer">
-                                    Profile
-                                </button>
-                                <button
-                                    onClick={handleLogout}
-                                    className="bg-red-600 text-white px-8 py-2 text-sm font-medium hover:bg-red-700 transition-colors rounded-none h-10 flex items-center gap-2 cursor-pointer"
-                                >
-                                    <LogOut size={16} />
-                                    Logout
-                                </button>
-                                <button
-                                    onClick={toggleTheme}
-                                    className="bg-gray-800 text-white px-8 py-2 text-sm font-medium hover:bg-gray-700 transition-colors dark:bg-gray-700 dark:hover:bg-gray-600 rounded-none h-10 flex items-center justify-center cursor-pointer"
-                                    aria-label="Toggle theme"
-                                >
-                                    {theme === 'light' ? (
-                                        <Moon size={18} />
-                                    ) : (
-                                        <Sun
-                                            size={18}
-                                            className="text-white"
-                                        />
-                                    )}
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                    <hr className="border-gray-300 dark:border-gray-700 mt-6" />
-                </div>
+        <div className="min-h-screen bg-zinc-50 dark:bg-gray-900 transition-colors duration-200">
+            <div className="w-full px-8 py-6">
+                <NavBar title="User Management" />
 
                 {/* Loading State */}
                 {isLoading ? (
