@@ -23,11 +23,21 @@ services:
     backend:
         build: ./backend
         container_name: fastapi_backend
-        env_file:
-            - ./backend/.env
         environment:
-            # Override host for Docker networking
+            # Database Configuration
+            POSTGRES_USER: ${POSTGRES_USER}
+            POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
             POSTGRES_HOST: db
+            POSTGRES_PORT: ${POSTGRES_PORT:-5432}
+            POSTGRES_DB: ${POSTGRES_DB}
+            # JWT Authentication
+            SECRET_KEY: ${SECRET_KEY}
+            # App Configuration
+            DEBUG: ${DEBUG:-false}
+            # CORS Configuration
+            CORS_ORIGINS: ${CORS_ORIGINS:-*}
+            # OpenAI Configuration (optional)
+            OPENAI_API_KEY: ${OPENAI_API_KEY:-}
         depends_on:
             - db
         networks:
