@@ -1,0 +1,42 @@
+name: Deploy to Coolify
+
+on:
+  workflow_run:
+    workflows: ["CI"]
+    types: [completed]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: deploy-main
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    name: Trigger Coolify deploy webhook
+    timeout-minutes: 5
+    if: >-
+      github.event_name == 'workflow_dispatch' ||
+      (
+        github.event.workflow_run.conclusion == 'success' &&
+        github.event.workflow_run.event == 'push' &&
+        github.event.workflow_run.head_branch == 'main'
+      )
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Trigger Coolify deployment
+        run: |
+          if [ -z "${{ secrets.COOLIFY_DEPLOY_WEBHOOK_URL }}" ]; then
+            echo "COOLIFY_DEPLOY_WEBHOOK_URL is not set."
+            exit 1
+          fi
+
+          curl --fail --show-error --silent \
+            --request POST \
+            --retry 3 \
+            --retry-all-errors \
+            --max-time 30 \
+            "${{ secrets.COOLIFY_DEPLOY_WEBHOOK_URL }}"
