@@ -1,3 +1,4 @@
+/* eslint-disable react-refresh/only-export-components */
 import React, { createContext, useContext, useState, useEffect } from 'react'
 
 type Theme = 'light' | 'dark'
@@ -10,17 +11,13 @@ interface ThemeContextType {
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined)
 
 export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-    const [theme, setTheme] = useState<Theme>('light')
-
-    useEffect(() => {
-        // Check system preference or local storage on mount
-        const savedTheme = localStorage.getItem('theme') as Theme
-        if (savedTheme) {
-            setTheme(savedTheme)
-        } else if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
-            setTheme('dark')
+    const [theme, setTheme] = useState<Theme>(() => {
+        const savedTheme = localStorage.getItem('theme')
+        if (savedTheme === 'light' || savedTheme === 'dark') {
+            return savedTheme
         }
-    }, [])
+        return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
+    })
 
     useEffect(() => {
         document.documentElement.classList.remove('light', 'dark')

@@ -141,7 +141,7 @@ class TestIsAllowed:
             (UserRole.USER, Action.READ_INVENTORY, True),
             (UserRole.USER, Action.WRITE_INVENTORY, True),
             (UserRole.USER, Action.DELETE_INVENTORY, False),
-            (UserRole.MEMBER, Action.MANAGE_SETTINGS, False),
+            (UserRole.MANAGER, Action.MANAGE_SETTINGS, False),
             # Viewer can only read
             (UserRole.VIEWER, Action.READ_INVENTORY, True),
             (UserRole.VIEWER, Action.WRITE_INVENTORY, False),
@@ -245,7 +245,7 @@ class TestRequireRole:
     def test_viewer_fails_member_requirement(self, viewer_user):
         """Viewer should fail member requirement."""
         with pytest.raises(HTTPException) as exc_info:
-            require_role(viewer_user, UserRole.MEMBER)
+            require_role(viewer_user, UserRole.MANAGER)
 
         assert exc_info.value.status_code == 403
 

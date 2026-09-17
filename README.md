@@ -90,3 +90,45 @@ docker compose down
 -   **Models** (`app/models/`) - Database table definitions
 -   **Schemas** (`app/schemas/`) - API request/response validation
 -   **Dependencies** (`app/core/dependencies.py`) - Dependency injection setup
+
+## CI/CD (GitHub Actions + Coolify)
+
+This repository includes two workflows:
+
+-   `.github/workflows/ci.yml`
+    -   Runs on every push and pull request
+    -   Backend: starts PostgreSQL service and runs `pytest`
+    -   Frontend: runs lint and build
+-   `.github/workflows/deploy-coolify.yml`
+    -   Triggers only when `CI` succeeds for a push to `main`
+    -   Calls your Coolify deploy webhook URL
+
+### One-time setup
+
+1. Ensure GitHub CLI is installed and authenticated:
+    - `gh --version`
+    - `gh auth status`
+2. Ensure Coolify CLI is installed:
+    - `coolify --help`
+3. In Coolify, open your application and copy the Deploy Webhook URL.
+4. From this repository root, run:
+    - `./scripts/setup-cicd-secrets.sh`
+5. Push to `main` (or run the `Deploy to Coolify` workflow manually from GitHub Actions).
+
+### Workflow behavior
+
+- `CI` runs on push, pull request, and manual dispatch.
+- `Deploy to Coolify` runs automatically after successful `CI` on `main` pushes.
+- `Deploy to Coolify` also supports manual dispatch.
+
+### Suggested branch strategy
+
+1. Use pull requests for all changes.
+2. Require `CI` workflow to pass before merge.
+3. Merge into `main` to auto-deploy to Coolify.
+
+### Notes for Hetzner + Coolify
+
+-   Keep production environment variables in Coolify (not in the repo).
+-   Ensure your Coolify app is set to build from `main` branch.
+-   If you want staging and production, duplicate the app in Coolify and use separate branches (for example, `develop` and `main`) with separate deploy webhooks.

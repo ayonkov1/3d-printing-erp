@@ -1,9 +1,12 @@
 """Tests for inventory API endpoints"""
 
 import pytest
+from unittest.mock import MagicMock
 from fastapi.testclient import TestClient
 from app.main import app
 from app.core.dependencies import get_db
+from app.services.auth_service import get_current_user
+from app.models.user import User, UserRole
 from tests.conftest import TestingSessionLocal, Base, engine
 
 # Import all models
@@ -30,6 +33,18 @@ def override_get_db():
 
 
 app.dependency_overrides[get_db] = override_get_db
+
+
+async def override_get_current_user():
+    user = MagicMock(spec=User)
+    user.id = "test-admin-id"
+    user.email = "admin@test.local"
+    user.role = UserRole.ADMIN
+    user.is_active = True
+    return user
+
+
+app.dependency_overrides[get_current_user] = override_get_current_user
 client = TestClient(app)
 
 
