@@ -358,7 +358,7 @@ export const Dashboard: React.FC = () => {
         try {
             await generate()
             toast.success('Insight generated successfully')
-        } catch (err) {
+        } catch {
             toast.error(streamError || 'Failed to generate insight')
         }
     }

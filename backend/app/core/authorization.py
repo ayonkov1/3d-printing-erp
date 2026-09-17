@@ -74,6 +74,17 @@ ROLE_PERMISSIONS: dict[UserRole, set[Action]] = {
         Action.READ_CATALOG,
         Action.WRITE_CATALOG,
     },
+    UserRole.MANAGER: {
+        # Managers can fully manage inventory/catalog and manage users (except delete)
+        Action.READ_INVENTORY,
+        Action.WRITE_INVENTORY,
+        Action.DELETE_INVENTORY,
+        Action.READ_CATALOG,
+        Action.WRITE_CATALOG,
+        Action.DELETE_CATALOG,
+        Action.READ_USERS,
+        Action.WRITE_USERS,
+    },
     UserRole.VIEWER: {
         # Viewers have read-only access
         Action.READ_INVENTORY,
@@ -212,8 +223,9 @@ def require_role(user: User, required_role: UserRole) -> None:
 
     role_hierarchy = {
         UserRole.VIEWER: 0,
-        UserRole.MEMBER: 1,
-        UserRole.ADMIN: 2,
+        UserRole.USER: 1,
+        UserRole.MANAGER: 2,
+        UserRole.ADMIN: 3,
     }
 
     if role_hierarchy.get(user.role, -1) < role_hierarchy.get(required_role, 999):

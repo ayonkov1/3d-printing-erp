@@ -115,7 +115,7 @@ export const dashboardApi = {
                             } else if (parsed.type === 'error') {
                                 onError(parsed.error)
                             }
-                        } catch (e) {
+                        } catch {
                             // Ignore JSON parse errors
                         }
                     }
