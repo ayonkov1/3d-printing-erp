@@ -343,7 +343,10 @@ export const AddNewForm: React.FC<AddNewFormProps> = ({ disabled = false, barcod
                             <div className="flex items-center border border-gray-400 px-3 py-2 bg-white dark:bg-gray-800 ml-2 flex-1">
                                 <input
                                     type="number"
-                                    {...register('base_weight', { required: 'Base weight is required' })}
+                                    {...register('base_weight', {
+                                        required: 'Base weight is required',
+                                        validate: (value) => Number(value) > 0 || 'Base weight must be greater than 0',
+                                    })}
                                     className="flex-1 bg-transparent text-right dark:text-white focus:outline-none w-full"
                                     placeholder="Enter weight"
                                 />
@@ -449,7 +452,10 @@ export const AddNewForm: React.FC<AddNewFormProps> = ({ disabled = false, barcod
                                 <input
                                     type="number"
                                     step="0.01"
-                                    {...register('thickness', { required: 'Thickness is required' })}
+                                    {...register('thickness', {
+                                        required: 'Thickness is required',
+                                        validate: (value) => Number(value) > 0 || 'Thickness must be greater than 0',
+                                    })}
                                     className="flex-1 bg-transparent text-right dark:text-white focus:outline-none w-full"
                                     placeholder="Enter thickness"
                                 />
