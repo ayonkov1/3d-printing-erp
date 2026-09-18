@@ -5,9 +5,10 @@ import { useCreateColor } from '../hooks'
 interface AddColorModalProps {
     isOpen: boolean
     onClose: () => void
+    onCreated?: (name: string, hexCode: string) => void
 }
 
-export const AddColorModal: React.FC<AddColorModalProps> = ({ isOpen, onClose }) => {
+export const AddColorModal: React.FC<AddColorModalProps> = ({ isOpen, onClose, onCreated }) => {
     const [name, setName] = useState('')
     const [hexCode, setHexCode] = useState('#000000')
     const [error, setError] = useState('')
@@ -40,11 +41,14 @@ export const AddColorModal: React.FC<AddColorModalProps> = ({ isOpen, onClose })
             return
         }
 
+        const trimmedName = name.trim()
+
         createColor.mutate(
-            { name: name.trim(), hex_code: hexCode },
+            { name: trimmedName, hex_code: hexCode },
             {
                 onSuccess: () => {
-                    toast.success(`Color "${name.trim()}" created successfully!`)
+                    toast.success(`Color "${trimmedName}" created successfully!`)
+                    onCreated?.(trimmedName, hexCode)
                     setName('')
                     setHexCode('#000000')
                     setError('')
