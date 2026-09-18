@@ -5,9 +5,10 @@ import { useCreateBrand } from '../hooks'
 interface AddBrandModalProps {
     isOpen: boolean
     onClose: () => void
+    onCreated?: (name: string) => void
 }
 
-export const AddBrandModal: React.FC<AddBrandModalProps> = ({ isOpen, onClose }) => {
+export const AddBrandModal: React.FC<AddBrandModalProps> = ({ isOpen, onClose, onCreated }) => {
     const [name, setName] = useState('')
     const [error, setError] = useState('')
     const inputRef = useRef<HTMLInputElement>(null)
@@ -33,11 +34,14 @@ export const AddBrandModal: React.FC<AddBrandModalProps> = ({ isOpen, onClose })
             return
         }
 
+        const trimmedName = name.trim()
+
         createBrand.mutate(
-            { name: name.trim() },
+            { name: trimmedName },
             {
                 onSuccess: () => {
-                    toast.success(`Brand "${name.trim()}" created successfully!`)
+                    toast.success(`Brand "${trimmedName}" created successfully!`)
+                    onCreated?.(trimmedName)
                     setName('')
                     setError('')
                     handleClose()

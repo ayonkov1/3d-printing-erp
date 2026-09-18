@@ -5,9 +5,10 @@ import { useCreateMaterial } from '../hooks'
 interface AddMaterialModalProps {
     isOpen: boolean
     onClose: () => void
+    onCreated?: (name: string) => void
 }
 
-export const AddMaterialModal: React.FC<AddMaterialModalProps> = ({ isOpen, onClose }) => {
+export const AddMaterialModal: React.FC<AddMaterialModalProps> = ({ isOpen, onClose, onCreated }) => {
     const [name, setName] = useState('')
     const [error, setError] = useState('')
     const inputRef = useRef<HTMLInputElement>(null)
@@ -33,11 +34,14 @@ export const AddMaterialModal: React.FC<AddMaterialModalProps> = ({ isOpen, onCl
             return
         }
 
+        const trimmedName = name.trim()
+
         createMaterial.mutate(
-            { name: name.trim() },
+            { name: trimmedName },
             {
                 onSuccess: () => {
-                    toast.success(`Material "${name.trim()}" created successfully!`)
+                    toast.success(`Material "${trimmedName}" created successfully!`)
+                    onCreated?.(trimmedName)
                     setName('')
                     setError('')
                     handleClose()

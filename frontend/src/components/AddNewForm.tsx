@@ -552,18 +552,28 @@ export const AddNewForm: React.FC<AddNewFormProps> = ({ disabled = false, barcod
             <AddMaterialModal
                 isOpen={isMaterialModalOpen}
                 onClose={() => setIsMaterialModalOpen(false)}
+                onCreated={(name) => {
+                    setValue('material_name', name, { shouldValidate: true, shouldDirty: true })
+                }}
             />
 
             {/* Add Brand Modal */}
             <AddBrandModal
                 isOpen={isBrandModalOpen}
                 onClose={() => setIsBrandModalOpen(false)}
+                onCreated={(name) => {
+                    setValue('brand_name', name, { shouldValidate: true, shouldDirty: true })
+                }}
             />
 
             {/* Add Color Modal */}
             <AddColorModal
                 isOpen={isColorModalOpen}
                 onClose={() => setIsColorModalOpen(false)}
+                onCreated={(name, hexCode) => {
+                    setValue('color_name', name, { shouldValidate: true, shouldDirty: true })
+                    setValue('color_hex_code', hexCode, { shouldDirty: true })
+                }}
             />
         </>
     )
