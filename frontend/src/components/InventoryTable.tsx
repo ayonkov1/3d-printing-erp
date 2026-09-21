@@ -1,4 +1,4 @@
-import React from 'react'
+import { FC, useEffect, useState } from 'react'
 import { useReactTable, getCoreRowModel, flexRender, createColumnHelper, getSortedRowModel, type SortingState } from '@tanstack/react-table'
 import { useInventory, useUpdateInventory, useDeleteInventory } from '../hooks'
 import type { Inventory } from '../types'
@@ -14,20 +14,40 @@ const parseApiDate = (dateString: string): Date => {
 
 const formatAddedAt = (dateString: string): string =>
     new Intl.DateTimeFormat(undefined, {
-        dateStyle: 'short',
+        dateStyle: 'medium',
         timeStyle: 'short',
     }).format(parseApiDate(dateString))
 
-export const InventoryTable: React.FC = () => {
+const formatElapsedTime = (dateString: string, currentTime: number): string => {
+    const elapsedMinutes = Math.max(0, Math.floor((currentTime - parseApiDate(dateString).getTime()) / 60_000))
+
+    if (elapsedMinutes < 1) return 'Less than a minute ago'
+    if (elapsedMinutes < 60) return `${elapsedMinutes} min ago`
+
+    const elapsedHours = Math.floor(elapsedMinutes / 60)
+    if (elapsedHours < 24) return `${elapsedHours} h ago`
+
+    const elapsedDays = Math.floor(elapsedHours / 24)
+    return `${elapsedDays} d ago`
+}
+
+export const InventoryTable: FC = () => {
     const { data: inventory = [], isLoading, error } = useInventory()
     const updateInventory = useUpdateInventory()
     const deleteInventory = useDeleteInventory()
-    const [sorting, setSorting] = React.useState<SortingState>([
+    const [showAddedTimestamp, setShowAddedTimestamp] = useState<Set<string>>(new Set())
+    const [currentTime, setCurrentTime] = useState(() => Date.now())
+    const [sorting, setSorting] = useState<SortingState>([
         {
             id: 'created_at',
             desc: true, // Newest first
         },
     ])
+
+    useEffect(() => {
+        const interval = window.setInterval(() => setCurrentTime(Date.now()), 1_000)
+        return () => window.clearInterval(interval)
+    }, [])
 
     const handleMarkInUse = (item: Inventory) => {
         updateInventory.mutate(
@@ -85,9 +105,25 @@ export const InventoryTable: React.FC = () => {
             header: 'Added',
             cell: (info) => {
                 const createdAt = info.getValue()
+                const itemId = info.row.original.id
+                const showTimestamp = showAddedTimestamp.has(itemId)
                 return (
                     <div className="text-left text-sm">
-                        <span className="text-gray-600 dark:text-gray-400">{formatAddedAt(createdAt)}</span>
+                        <button
+                            type="button"
+                            onClick={() =>
+                                setShowAddedTimestamp((current) => {
+                                    const next = new Set(current)
+                                    if (next.has(itemId)) next.delete(itemId)
+                                    else next.add(itemId)
+                                    return next
+                                })
+                            }
+                            className="text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 cursor-pointer"
+                            title={showTimestamp ? 'Show elapsed time' : 'Show date and time'}
+                        >
+                            {showTimestamp ? formatAddedAt(createdAt) : formatElapsedTime(createdAt, currentTime)}
+                        </button>
                     </div>
                 )
             },
@@ -169,10 +205,10 @@ export const InventoryTable: React.FC = () => {
                 </div>
             ),
         }),
-        columnHelper.accessor('custom_properties', {
-            header: 'Notes',
-            cell: (info) => <div className="text-left text-sm text-gray-500 dark:text-gray-400 max-w-[150px] truncate">{info.getValue() || '-'}</div>,
-        }),
+        // columnHelper.accessor('custom_properties', {
+        //     header: 'Notes',
+        //     cell: (info) => <div className="text-left text-sm text-gray-500 dark:text-gray-400 max-w-[150px] truncate">{info.getValue() || '-'}</div>,
+        // }),
         columnHelper.display({
             id: 'actions',
             header: 'Actions',
