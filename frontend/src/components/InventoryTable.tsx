@@ -7,37 +7,16 @@ import { Printer, Package, Trash2, ChevronUp, ChevronDown } from 'lucide-react'
 
 const columnHelper = createColumnHelper<Inventory>()
 
-// Utility function to format relative time
-const formatRelativeTime = (dateString: string): string => {
-    const now = new Date()
-    const date = new Date(dateString)
-    const diffInMs = now.getTime() - date.getTime()
-
-    const minute = 60 * 1000
-    const hour = 60 * minute
-    const day = 24 * hour
-    const month = 30 * day
-    const year = 365 * day
-
-    if (diffInMs < minute) {
-        return 'Just now'
-    } else if (diffInMs < hour) {
-        const mins = Math.floor(diffInMs / minute)
-        return `${mins} min`
-    } else if (diffInMs < day) {
-        const hours = Math.floor(diffInMs / hour)
-        return `${hours} H`
-    } else if (diffInMs < month) {
-        const days = Math.floor(diffInMs / day)
-        return `${days} D`
-    } else if (diffInMs < year) {
-        const months = Math.floor(diffInMs / month)
-        return `${months} M`
-    } else {
-        const years = Math.floor(diffInMs / year)
-        return `${years} Y`
-    }
+const parseApiDate = (dateString: string): Date => {
+    const hasTimezone = /[zZ]$|[+-]\d{2}:\d{2}$/.test(dateString)
+    return new Date(hasTimezone ? dateString : `${dateString}Z`)
 }
+
+const formatAddedAt = (dateString: string): string =>
+    new Intl.DateTimeFormat(undefined, {
+        dateStyle: 'short',
+        timeStyle: 'short',
+    }).format(parseApiDate(dateString))
 
 export const InventoryTable: React.FC = () => {
     const { data: inventory = [], isLoading, error } = useInventory()
@@ -108,13 +87,13 @@ export const InventoryTable: React.FC = () => {
                 const createdAt = info.getValue()
                 return (
                     <div className="text-left text-sm">
-                        <span className="text-gray-600 dark:text-gray-400">{formatRelativeTime(createdAt)}</span>
+                        <span className="text-gray-600 dark:text-gray-400">{formatAddedAt(createdAt)}</span>
                     </div>
                 )
             },
             sortingFn: (a, b) => {
-                const dateA = new Date(a.original.created_at)
-                const dateB = new Date(b.original.created_at)
+                const dateA = parseApiDate(a.original.created_at)
+                const dateB = parseApiDate(b.original.created_at)
                 return dateA.getTime() - dateB.getTime()
             },
         }),
@@ -128,11 +107,11 @@ export const InventoryTable: React.FC = () => {
             header: 'Material',
             cell: (info) => <div className="text-left">{info.getValue()}</div>,
         }),
-        columnHelper.accessor((row) => row.spool.color, {
+        columnHelper.accessor((row) => row.spool.color.name, {
             id: 'color',
             header: 'Color',
             cell: (info) => {
-                const color = info.getValue()
+                const color = info.row.original.spool.color
                 return (
                     <div className="flex items-center gap-2 text-left">
                         <div
@@ -158,10 +137,11 @@ export const InventoryTable: React.FC = () => {
                 )
             },
         }),
-        columnHelper.accessor('status', {
+        columnHelper.accessor((row) => row.status.name, {
+            id: 'status',
             header: 'Status',
             cell: (info) => {
-                const status = info.getValue()
+                const status = info.row.original.status
                 const statusColors: Record<string, string> = {
                     in_stock: 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300',
                     in_use: 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300',
