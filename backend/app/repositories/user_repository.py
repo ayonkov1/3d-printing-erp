@@ -1,7 +1,7 @@
 from typing import Optional, List
 from sqlalchemy.orm import Session
 
-from app.models.user import User, UserRole
+from app.models.user import User
 from app.repositories.base import BaseRepository
 
 
@@ -24,19 +24,3 @@ class UserRepository(BaseRepository[User]):
     def count_users(self) -> int:
         """Count total number of users"""
         return self.db.query(User).count()
-
-    def create_user(
-        self,
-        email: str,
-        hashed_password: str,
-        full_name: Optional[str] = None,
-        role: UserRole = UserRole.USER,
-    ) -> User:
-        """Create a new user with specified role."""
-        new_user = User(
-            email=email,
-            hashed_password=hashed_password,
-            full_name=full_name,
-            role=role,
-        )
-        return self.create(new_user)

@@ -4,7 +4,7 @@ from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
 
 from app.database import get_db
-from app.schemas.user import UserCreate, UserLogin, UserResponse, Token, AuthResponse
+from app.schemas.user import UserLogin, UserResponse, AuthResponse
 from app.services.auth_service import (
     AuthService,
     create_access_token,
@@ -14,48 +14,6 @@ from app.models.user import User
 from app.core.config import settings
 
 router = APIRouter(prefix="/api/auth", tags=["Authentication"])
-
-
-@router.post("/register", response_model=AuthResponse, status_code=201)
-async def register(
-    user_data: UserCreate,
-    db: Session = Depends(get_db),
-):
-    """
-    Register a new user.
-
-    Returns the created user with an access token.
-    """
-    auth_service = AuthService(db)
-
-    try:
-        user = auth_service.register_user(user_data)
-
-        # Create access token with role for authorization
-        access_token = create_access_token(
-            data={
-                "user_id": user.id,
-                "role": user.role.value,  # Include role in JWT
-            },
-            expires_delta=timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES),
-        )
-
-        return AuthResponse(
-            access_token=access_token,
-            token_type="bearer",
-            user=UserResponse.model_validate(user),
-        )
-    except HTTPException:
-        raise
-    except Exception as e:
-        # Log the error for debugging but don't expose details to user
-        import logging
-
-        logging.error(f"Registration error: {str(e)}", exc_info=True)
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Registration failed. Please try again or contact support.",
-        )
 
 
 @router.post("/login", response_model=AuthResponse)

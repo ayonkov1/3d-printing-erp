@@ -1,4 +1,4 @@
-from pydantic import BaseModel, Field, EmailStr
+from pydantic import BaseModel, EmailStr
 from datetime import datetime
 from typing import Optional
 from enum import Enum
@@ -11,15 +11,6 @@ class UserRoleEnum(str, Enum):
     MANAGER = "MANAGER"
     USER = "USER"
     VIEWER = "VIEWER"
-
-
-class UserCreate(BaseModel):
-    email: EmailStr
-    password: str = Field(..., min_length=6)
-    full_name: Optional[str] = Field(None, max_length=100)
-    role: UserRoleEnum = Field(
-        default=UserRoleEnum.USER, description="User role for authorization"
-    )
 
 
 class UserLogin(BaseModel):

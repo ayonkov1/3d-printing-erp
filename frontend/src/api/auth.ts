@@ -21,20 +21,9 @@ export interface LoginCredentials {
     password: string
 }
 
-export interface RegisterCredentials {
-    email: string
-    password: string
-    full_name?: string
-}
-
 export const authApi = {
     login: async (credentials: LoginCredentials): Promise<AuthResponse> => {
         const response = await apiClient.post<AuthResponse>('/api/auth/login', credentials)
-        return response.data
-    },
-
-    register: async (credentials: RegisterCredentials): Promise<AuthResponse> => {
-        const response = await apiClient.post<AuthResponse>('/api/auth/register', credentials)
         return response.data
     },
 

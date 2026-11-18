@@ -8,9 +8,9 @@ from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
 
 from app.core.config import settings
-from app.models.user import User, UserRole
+from app.models.user import User
 from app.repositories.user_repository import UserRepository
-from app.schemas.user import UserCreate, TokenData
+from app.schemas.user import TokenData
 from app.database import get_db
 
 # Configure auth logger
@@ -109,38 +109,6 @@ class AuthService:
     def __init__(self, db: Session):
         self.db = db
         self.user_repo = UserRepository(db)
-
-    def register_user(self, user_data: UserCreate) -> User:
-        """Register a new user with role. First user gets ADMIN role, all others get VIEWER role."""
-        # Check if user already exists
-        existing_user = self.user_repo.find_by_email(user_data.email)
-        if existing_user:
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail="Email already registered",
-            )
-
-        # Hash password and create user with role
-        hashed_password = get_password_hash(user_data.password)
-
-        # Determine role: first user gets ADMIN, all others get VIEWER
-        user_count = self.user_repo.count_users()
-        if user_count == 0:
-            role = UserRole.ADMIN
-            auth_logger.info(f"Creating first user with ADMIN role: {user_data.email}")
-        else:
-            role = UserRole.VIEWER
-            auth_logger.info(f"Creating user with VIEWER role: {user_data.email}")
-
-        user = self.user_repo.create_user(
-            email=user_data.email,
-            hashed_password=hashed_password,
-            full_name=user_data.full_name,
-            role=role,
-        )
-
-        auth_logger.info(f"New user registered: {user.email} with role {role.value}")
-        return user
 
     def authenticate_user(self, email: str, password: str) -> Optional[User]:
         """Authenticate a user by email and password"""
