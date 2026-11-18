@@ -2,26 +2,16 @@ import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useForm } from 'react-hook-form'
 import { Loader2, Eye, EyeOff, Printer } from 'lucide-react'
-import { authApi, type RegisterCredentials } from '../api/auth'
+import { authApi } from '../api/auth'
 import { useAuth } from '../contexts/AuthContext'
-import { showSuccess, showApiError, showError } from '../lib/toast'
-
-type AuthMode = 'login' | 'register'
+import { showSuccess, showApiError } from '../lib/toast'
 
 interface LoginFormData {
     email: string
     password: string
 }
 
-interface RegisterFormData {
-    email: string
-    password: string
-    confirmPassword: string
-    full_name: string
-}
-
 export function AuthPage() {
-    const [mode, setMode] = useState<AuthMode>('login')
     const [isLoading, setIsLoading] = useState(false)
     const [showPassword, setShowPassword] = useState(false)
     const navigate = useNavigate()
@@ -38,10 +28,6 @@ export function AuthPage() {
         defaultValues: { email: '', password: '' },
     })
 
-    const registerForm = useForm<RegisterFormData>({
-        defaultValues: { email: '', password: '', confirmPassword: '', full_name: '' },
-    })
-
     const handleLogin = async (data: LoginFormData) => {
         setIsLoading(true)
         try {
@@ -54,41 +40,6 @@ export function AuthPage() {
         } finally {
             setIsLoading(false)
         }
-    }
-
-    const handleRegister = async (data: RegisterFormData) => {
-        if (data.password !== data.confirmPassword) {
-            showError('Passwords do not match')
-            return
-        }
-
-        if (data.password.length < 6) {
-            showError('Password must be at least 6 characters long')
-            return
-        }
-
-        setIsLoading(true)
-        try {
-            const credentials: RegisterCredentials = {
-                email: data.email,
-                password: data.password,
-                full_name: data.full_name || undefined,
-            }
-            const response = await authApi.register(credentials)
-            login(response.access_token, response.user)
-            showSuccess(`Welcome, ${response.user.full_name || response.user.email}! Your account has been created.`)
-            navigate('/')
-        } catch (error: unknown) {
-            showApiError(error, 'Registration failed. Please try again.')
-        } finally {
-            setIsLoading(false)
-        }
-    }
-
-    const toggleMode = () => {
-        setMode(mode === 'login' ? 'register' : 'login')
-        loginForm.reset()
-        registerForm.reset()
     }
 
     return (
@@ -151,156 +102,61 @@ export function AuthPage() {
 
                     {/* Form Header */}
                     <div className="text-center mb-8">
-                        <h2 className="text-3xl font-bold text-gray-900 dark:text-white">{mode === 'login' ? 'Welcome back' : 'Create account'}</h2>
-                        <p className="mt-2 text-gray-600 dark:text-gray-400">
-                            {mode === 'login' ? 'Sign in to access your inventory' : 'Get started with your free account'}
-                        </p>
+                        <h2 className="text-3xl font-bold text-gray-900 dark:text-white">Welcome back</h2>
+                        <p className="mt-2 text-gray-600 dark:text-gray-400">Sign in to access your inventory</p>
                     </div>
 
                     {/* Login Form */}
-                    {mode === 'login' && (
-                        <form
-                            onSubmit={loginForm.handleSubmit(handleLogin)}
-                            className="space-y-5"
-                        >
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Email</label>
-                                <input
-                                    type="email"
-                                    {...loginForm.register('email', { required: true })}
-                                    className="w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-teal-500 focus:border-transparent transition-all"
-                                    placeholder="you@example.com"
-                                    disabled={isLoading}
-                                />
-                            </div>
-
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Password</label>
-                                <div className="relative">
-                                    <input
-                                        type={showPassword ? 'text' : 'password'}
-                                        {...loginForm.register('password', { required: true })}
-                                        className="w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-teal-500 focus:border-transparent transition-all pr-12"
-                                        placeholder="••••••••"
-                                        disabled={isLoading}
-                                    />
-                                    <button
-                                        type="button"
-                                        onClick={() => setShowPassword(!showPassword)}
-                                        className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700 dark:hover:text-gray-300"
-                                    >
-                                        {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
-                                    </button>
-                                </div>
-                            </div>
-
-                            <button
-                                type="submit"
+                    <form
+                        onSubmit={loginForm.handleSubmit(handleLogin)}
+                        className="space-y-5"
+                    >
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Email</label>
+                            <input
+                                type="email"
+                                {...loginForm.register('email', { required: true })}
+                                className="w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-teal-500 focus:border-transparent transition-all"
+                                placeholder="you@example.com"
                                 disabled={isLoading}
-                                className="w-full py-3 px-4 bg-gradient-to-r from-teal-600 to-emerald-600 hover:from-teal-700 hover:to-emerald-700 text-white font-semibold rounded-lg shadow-lg hover:shadow-xl transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
-                            >
-                                {isLoading ? (
-                                    <>
-                                        <Loader2 className="w-5 h-5 animate-spin" />
-                                        Signing in...
-                                    </>
-                                ) : (
-                                    'Sign in'
-                                )}
-                            </button>
-                        </form>
-                    )}
+                            />
+                        </div>
 
-                    {/* Register Form */}
-                    {mode === 'register' && (
-                        <form
-                            onSubmit={registerForm.handleSubmit(handleRegister)}
-                            className="space-y-5"
-                        >
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Full Name</label>
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Password</label>
+                            <div className="relative">
                                 <input
-                                    type="text"
-                                    {...registerForm.register('full_name')}
-                                    className="w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-teal-500 focus:border-transparent transition-all"
-                                    placeholder="John Doe"
-                                    disabled={isLoading}
-                                />
-                            </div>
-
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Email</label>
-                                <input
-                                    type="email"
-                                    {...registerForm.register('email', { required: true })}
-                                    className="w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-teal-500 focus:border-transparent transition-all"
-                                    placeholder="you@example.com"
-                                    disabled={isLoading}
-                                />
-                            </div>
-
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Password</label>
-                                <div className="relative">
-                                    <input
-                                        type={showPassword ? 'text' : 'password'}
-                                        {...registerForm.register('password', { required: true, minLength: 6 })}
-                                        className="w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-teal-500 focus:border-transparent transition-all pr-12"
-                                        placeholder="••••••••"
-                                        disabled={isLoading}
-                                    />
-                                    <button
-                                        type="button"
-                                        onClick={() => setShowPassword(!showPassword)}
-                                        className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700 dark:hover:text-gray-300"
-                                    >
-                                        {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
-                                    </button>
-                                </div>
-                                <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">Must be at least 6 characters</p>
-                            </div>
-
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Confirm Password</label>
-                                <input
-                                    type="password"
-                                    {...registerForm.register('confirmPassword', { required: true })}
-                                    className="w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-teal-500 focus:border-transparent transition-all"
+                                    type={showPassword ? 'text' : 'password'}
+                                    {...loginForm.register('password', { required: true })}
+                                    className="w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-teal-500 focus:border-transparent transition-all pr-12"
                                     placeholder="••••••••"
                                     disabled={isLoading}
                                 />
+                                <button
+                                    type="button"
+                                    onClick={() => setShowPassword(!showPassword)}
+                                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700 dark:hover:text-gray-300"
+                                >
+                                    {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                                </button>
                             </div>
+                        </div>
 
-                            <button
-                                type="submit"
-                                disabled={isLoading}
-                                className="w-full py-3 px-4 bg-gradient-to-r from-teal-600 to-emerald-600 hover:from-teal-700 hover:to-emerald-700 text-white font-semibold rounded-lg shadow-lg hover:shadow-xl transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
-                            >
-                                {isLoading ? (
-                                    <>
-                                        <Loader2 className="w-5 h-5 animate-spin" />
-                                        Creating account...
-                                    </>
-                                ) : (
-                                    'Create account'
-                                )}
-                            </button>
-                        </form>
-                    )}
-
-                    {/* Toggle Mode */}
-                    <div className="mt-6 text-center">
-                        <p className="text-gray-600 dark:text-gray-400">
-                            {mode === 'login' ? "Don't have an account? " : 'Already have an account? '}
-                            <button
-                                type="button"
-                                onClick={toggleMode}
-                                className="text-teal-600 hover:text-teal-700 dark:text-teal-400 dark:hover:text-teal-300 font-semibold"
-                            >
-                                {mode === 'login' ? 'Sign up' : 'Sign in'}
-                            </button>
-                        </p>
-                    </div>
+                        <button
+                            type="submit"
+                            disabled={isLoading}
+                            className="w-full py-3 px-4 bg-gradient-to-r from-teal-600 to-emerald-600 hover:from-teal-700 hover:to-emerald-700 text-white font-semibold rounded-lg shadow-lg hover:shadow-xl transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                        >
+                            {isLoading ? (
+                                <>
+                                    <Loader2 className="w-5 h-5 animate-spin" />
+                                    Signing in...
+                                </>
+                            ) : (
+                                'Sign in'
+                            )}
+                        </button>
+                    </form>
                 </div>
             </div>
         </div>
